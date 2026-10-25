@@ -47,6 +47,33 @@ test("reject invalid dates, missing Disney fields, reversed dates and unsupporte
   assert.throws(() => cleanRecord({ ...n, tipe_sharing: "invalid" }));
   assert.throws(() => cleanRecord({ ...d, durasi: 0 }));
 });
+test("normalizes blank spreadsheet text cells before validating records", () => {
+  assert.throws(
+    () =>
+      cleanRecord({
+        ...n,
+        email: null,
+        password: null,
+        tipe_sharing: null,
+        deskripsi: null,
+      }),
+    (error) => {
+      assert.ok(
+        error.issues.every(
+          (issue) =>
+            issue.code !== "invalid_type" ||
+            !["email", "password", "tipe_sharing", "deskripsi"].includes(
+              issue.path[0],
+            ),
+        ),
+      );
+      assert.ok(error.issues.some((issue) => issue.path[0] === "email"));
+      assert.ok(error.issues.some((issue) => issue.path[0] === "password"));
+      assert.ok(error.issues.some((issue) => issue.path[0] === "tipe_sharing"));
+      return true;
+    },
+  );
+});
 test("strip client identity, owner and non-service fields", () => {
   const r = cleanRecord({
     ...d,
@@ -95,6 +122,27 @@ test("Excel roundtrip preserves passwords as strings and all service columns", a
     assert.equal(out.errors.length, 0);
     assert.deepEqual(out.rows, [cleanRecord(r)]);
   }
+});
+test("Excel import accepts blank optional description cells", async () => {
+  const workbook = new ExcelJS.Workbook();
+  const sheet = workbook.addWorksheet("Rekapan");
+  sheet.addRow([
+    "email",
+    "password",
+    "tanggal_reset",
+    "tipe_sharing",
+    "deskripsi",
+  ]);
+  sheet.addRow([n.email, n.password, n.tanggal_reset, n.tipe_sharing, null]);
+
+  const result = await parseWorkbook(
+    await workbook.xlsx.writeBuffer(),
+    "netflix",
+  );
+
+  assert.deepEqual(result.errors, []);
+  assert.equal(result.rows.length, 1);
+  assert.equal(result.rows[0].deskripsi, "");
 });
 test("Excel rejects mismatched template; reports invalid row before any write", async () => {
   const wrongTemplate = await writeWorkbook([], "disney");

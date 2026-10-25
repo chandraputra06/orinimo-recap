@@ -75,21 +75,37 @@ const date = z
   .transform((v) => v || null)
   .nullable()
   .optional();
-const text = z.string().trim().max(2000).optional().default("");
+const text = z
+  .string()
+  .trim()
+  .max(2000)
+  .nullish()
+  .transform((v) => v ?? "");
+const optionalText = (max) =>
+  z
+    .string()
+    .trim()
+    .max(max)
+    .nullish()
+    .transform((v) => v ?? "");
 export const accountSchema = z
   .object({
     kind: z.enum(kinds),
-    email: z.string().trim().max(255).optional().default(""),
-    password: z.string().max(255).optional().default(""),
+    email: optionalText(255),
+    password: z
+      .string()
+      .max(255)
+      .nullish()
+      .transform((v) => v ?? ""),
     tanggal_reset: date,
-    tipe_sharing: z.string().optional().default(""),
+    tipe_sharing: optionalText(200),
     deskripsi: text,
     tanggal_terjual: date,
     durasi_habis: date,
-    nomor: z.string().trim().max(100).optional().default(""),
-    profil: z.string().trim().max(100).optional().default(""),
-    device: z.string().trim().max(200).optional().default(""),
-    lokasi: z.string().trim().max(200).optional().default(""),
+    nomor: optionalText(100),
+    profil: optionalText(100),
+    device: optionalText(200),
+    lokasi: optionalText(200),
     durasi: z.coerce.number().int().min(1).max(3650).nullable().optional(),
   })
   .superRefine((r, ctx) => {
