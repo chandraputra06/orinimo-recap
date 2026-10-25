@@ -66,6 +66,30 @@ export function status(r, date = today()) {
     };
   return { key: "active", label: "Aktif", tone: "success", days };
 }
+export function todayBreakdown(records, date = today()) {
+  const groups = new Map();
+  for (const record of records) {
+    if (status(record, date).key !== "today") continue;
+    const sharing =
+      record.kind === "netflix"
+        ? record.tipe_sharing || "Tipe belum diatur"
+        : "";
+    const key =
+      record.kind === "netflix" ? `${record.kind}:${sharing}` : record.kind;
+    const group = groups.get(key) || {
+      kind: record.kind,
+      sharing,
+      count: 0,
+    };
+    group.count += 1;
+    groups.set(key, group);
+  }
+  const order = { disney: 0, netflix: 1, week: 2 };
+  return [...groups.values()].sort(
+    (a, b) =>
+      order[a.kind] - order[b.kind] || a.sharing.localeCompare(b.sharing, "id"),
+  );
+}
 const date = z
   .string()
   .refine(

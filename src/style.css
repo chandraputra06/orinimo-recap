@@ -2920,3 +2920,228 @@ small {
     grid-column: auto;
   }
 }
+:root {
+  --muted: #626b78;
+  --line: #dfe3e9;
+}
+input::placeholder,
+textarea::placeholder {
+  color: #6c7583;
+}
+.icon-btn {
+  color: #687386;
+}
+.sidebar .nav-label,
+.page-heading .eyebrow,
+.breadcrumb,
+.breadcrumb strong,
+.stat-top,
+.stat-bottom,
+.panel-heading p,
+.pagination,
+.mini-stats > div > span,
+.settings-panel > p,
+.settings-panel dt {
+  color: #626b78;
+}
+.search-field,
+.toolbar-select,
+.toolbar-select select,
+.sort-select {
+  color: #515b6a;
+}
+.search-field,
+.toolbar-select,
+.sort-select {
+  border-color: #d4dae3;
+}
+.account-table th {
+  background: #f1f3f6;
+  border-color: #dfe3e9;
+  color: #515b6a;
+  font-size: 9px;
+}
+.account-table td {
+  border-color: #e1e5eb;
+  color: #515b6a;
+}
+.account-table .account-cell strong {
+  color: #343b49;
+}
+.account-table .account-cell small,
+.account-cell small,
+.remaining {
+  color: #626b78;
+  font-size: 9px;
+}
+.row-number {
+  color: #626b78 !important;
+}
+.row-actions .icon-btn,
+.password-cell .icon-btn {
+  color: #626d7e;
+}
+.pagination b,
+.page-of {
+  color: #515b6a;
+}
+.badge.danger {
+  color: #9f3028;
+  background: #fce8e6;
+}
+.badge.orange {
+  color: #8a4b00;
+  background: #fff0d6;
+}
+.badge.warning {
+  color: #745700;
+  background: #fff4cc;
+}
+.badge.success {
+  color: #176b4f;
+  background: #e3f4eb;
+}
+.badge.neutral {
+  color: #4b5563;
+  background: #e9edf2;
+}
+:root[data-theme="dark"] {
+  --muted: #b8bec9;
+  --line: #383c47;
+}
+:root[data-theme="dark"] input::placeholder,
+:root[data-theme="dark"] textarea::placeholder {
+  color: #a5adba;
+}
+:root[data-theme="dark"] .icon-btn,
+:root[data-theme="dark"] .sidebar .nav-label,
+:root[data-theme="dark"] .page-heading .eyebrow,
+:root[data-theme="dark"] .breadcrumb,
+:root[data-theme="dark"] .breadcrumb strong,
+:root[data-theme="dark"] .stat-top,
+:root[data-theme="dark"] .stat-bottom,
+:root[data-theme="dark"] .panel-heading p,
+:root[data-theme="dark"] .pagination,
+:root[data-theme="dark"] .mini-stats > div > span,
+:root[data-theme="dark"] .settings-panel > p,
+:root[data-theme="dark"] .settings-panel dt,
+:root[data-theme="dark"] .account-table th,
+:root[data-theme="dark"] .account-table td,
+:root[data-theme="dark"] .account-table .account-cell small,
+:root[data-theme="dark"] .account-cell small,
+:root[data-theme="dark"] .remaining,
+:root[data-theme="dark"] .row-actions .icon-btn,
+:root[data-theme="dark"] .password-cell .icon-btn,
+:root[data-theme="dark"] .pagination b,
+:root[data-theme="dark"] .page-of {
+  color: #b8bec9;
+}
+:root[data-theme="dark"] .account-table th {
+  background: #272a32;
+  border-color: #383c47;
+}
+:root[data-theme="dark"] .account-table td {
+  border-color: #333741;
+}
+:root[data-theme="dark"] .account-table .account-cell strong {
+  color: #f1eff1;
+}
+:root[data-theme="dark"] .search-field,
+:root[data-theme="dark"] .toolbar-select,
+:root[data-theme="dark"] .sort-select {
+  border-color: #454a56;
+}
+:root[data-theme="dark"] .badge.danger {
+  color: #ffaaa4;
+  background: #482624;
+}
+:root[data-theme="dark"] .badge.orange {
+  color: #ffc77f;
+  background: #49321d;
+}
+:root[data-theme="dark"] .badge.warning {
+  color: #f1d77a;
+  background: #443a1d;
+}
+:root[data-theme="dark"] .badge.success {
+  color: #8fdbb7;
+  background: #1f3b30;
+}
+:root[data-theme="dark"] .badge.neutral {
+  color: #c4cad4;
+  background: #343943;
+}
+.reminder-breakdown {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+}
+.reminder-breakdown li {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 9px;
+  border: 1px solid #e2d6d0;
+  border-radius: 7px;
+  background: #fffaf7;
+  color: #59616e;
+  font-size: 10px;
+  line-height: 1.5;
+}
+.reminder-breakdown li strong {
+  color: #343b49;
+  font-weight: 600;
+}
+.breakdown-dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+  border-radius: 50%;
+  background: #7b1e1e;
+}
+.breakdown-dot.netflix {
+  background: #c0392b;
+}
+.breakdown-dot.week {
+  background: #9a5b16;
+}
+.breakdown-dot.disney {
+  background: #28628c;
+}
+.reminder-type {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  min-width: 120px;
+}
+.reminder-type strong {
+  color: #343b49;
+  font-size: 10px;
+  font-weight: 600;
+}
+.reminder-type small {
+  color: #626b78;
+  font-size: 9px;
+}
+:root[data-theme="dark"] .reminder-breakdown li {
+  border-color: #49404a;
+  background: #28252b;
+  color: #c4cad4;
+}
+:root[data-theme="dark"] .reminder-breakdown li strong,
+:root[data-theme="dark"] .reminder-type strong {
+  color: #f1eff1;
+}
+:root[data-theme="dark"] .reminder-type small {
+  color: #b8bec9;
+}
+@media (max-width: 700px) {
+  .reminder-breakdown li {
+    font-size: 9px;
+  }
+}

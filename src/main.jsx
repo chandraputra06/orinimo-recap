@@ -55,6 +55,7 @@ import {
   status,
   dueDate,
   diffDays,
+  todayBreakdown,
   cleanRecord,
   uniqueRows,
 } from "../shared/domain.js";
@@ -549,6 +550,7 @@ function Workspace({
   const totalToday = rows.filter(
     (r) => status(r, clock).key === "today",
   ).length;
+  const todaySummary = todayBreakdown(rows, clock);
   const title =
     view === "dashboard"
       ? "Dashboard"
@@ -911,9 +913,27 @@ function Workspace({
                                 : "Pantau jadwal berikutnya"}
                             </h3>
                             <p>
-                              Netflix & Disney: H−3 • Netflix mingguan: H−2 •
+                              Netflix & Disney: H−3 · Netflix mingguan: H−2 ·
                               Zona waktu WITA
                             </p>
+                            {todaySummary.length > 0 && (
+                              <ul className="reminder-breakdown">
+                                {todaySummary.map((item) => (
+                                  <li key={`${item.kind}:${item.sharing}`}>
+                                    <span
+                                      className={`breakdown-dot ${item.kind}`}
+                                    />
+                                    <strong>{item.count} akun</strong>
+                                    <span>
+                                      {item.kind === "netflix"
+                                        ? `Netflix · ${item.sharing}`
+                                        : names[item.kind]}
+                                    </span>
+                                    <span>reset hari ini</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
                           </div>
                         </div>
                         <div className="tabs service-tabs">
@@ -1434,7 +1454,7 @@ function AccountTable({ records, view, date, offset, onEdit, onDelete }) {
             ) : !rem ? (
               <th>PASSWORD</th>
             ) : (
-              <th>LAYANAN</th>
+              <th>LAYANAN / TIPE SHARING</th>
             )}
             {week || disney ? (
               <th>TERJUAL</th>
@@ -1475,7 +1495,18 @@ function AccountTable({ records, view, date, offset, onEdit, onDelete }) {
                   <Password value={r.password} />
                 </td>
               ) : (
-                <td>{names[r.kind]}</td>
+                <td>
+                  <span className="reminder-type">
+                    <strong>{names[r.kind]}</strong>
+                    <small>
+                      {r.kind === "netflix"
+                        ? r.tipe_sharing || "Tipe sharing belum diatur"
+                        : r.kind === "week"
+                          ? "Paket mingguan"
+                          : "Reset akun"}
+                    </small>
+                  </span>
+                </td>
               )}
               {week || disney ? (
                 <td className="date-cell">{dateLabel(r.tanggal_terjual)}</td>

@@ -1,6 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { addDays, status, cleanRecord, uniqueRows } from "../shared/domain.js";
+import {
+  addDays,
+  status,
+  cleanRecord,
+  uniqueRows,
+  todayBreakdown,
+} from "../shared/domain.js";
 import { excelDate, parseWorkbook, writeWorkbook } from "../shared/excel.js";
 import ExcelJS from "exceljs";
 const n = {
@@ -39,6 +45,30 @@ test("week H-2 and Disney H-3 are separate thresholds", () => {
   assert.equal(status(r, "2026-10-23").key, "soon");
   assert.equal(status(d, "2026-10-28").key, "soon");
   assert.equal(status(d, "2026-10-27").key, "active");
+});
+test("today reminder breakdown groups Netflix by sharing type and services", () => {
+  const rows = [
+    n,
+    { ...n, email: "second@example.com" },
+    { ...n, email: "third@example.com" },
+    {
+      kind: "week",
+      email: "weekly@example.com",
+      password: "secret",
+      tanggal_terjual: "2026-10-18",
+      durasi_habis: "2026-10-25",
+      deskripsi: "",
+    },
+    { ...d, tanggal_reset: "2026-10-25" },
+    { ...d, nomor: "D-002", tanggal_reset: "2026-10-25" },
+    { ...n, email: "later@example.com", tanggal_reset: "2026-10-26" },
+  ];
+
+  assert.deepEqual(todayBreakdown(rows, "2026-10-25"), [
+    { kind: "disney", sharing: "", count: 2 },
+    { kind: "netflix", sharing: "1P1U 1 Bulan", count: 3 },
+    { kind: "week", sharing: "", count: 1 },
+  ]);
 });
 test("reject invalid dates, missing Disney fields, reversed dates and unsupported sharing", () => {
   assert.throws(() => cleanRecord({ ...n, tanggal_reset: "2026-02-30" }));
