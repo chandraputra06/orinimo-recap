@@ -533,7 +533,7 @@ function Workspace({
     scrollToTop();
     setView(v);
     setQuery("");
-    setFilter("all");
+    setFilter(v === "reminders" ? "today" : "all");
     setPage(1);
     setMobile(false);
     if (kind) setRemKind(kind);
