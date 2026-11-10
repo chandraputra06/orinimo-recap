@@ -1,26 +1,21 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import {
-  AnimatePresence,
-  motion,
-  useReducedMotion,
-} from "motion/react";
-
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Lenis from "lenis";
 import "lenis/dist/lenis.css";
 
 import { Icon } from "@iconify/react";
-import layoutDashboard from "@iconify-icons/lucide/layout-dashboard";
-import calendarDays from "@iconify-icons/lucide/calendar-days";
+import dashboardIcon from "@iconify-icons/lucide/layout-dashboard";
+import calendarIcon from "@iconify-icons/lucide/calendar-days";
 import clapperboard from "@iconify-icons/lucide/clapperboard";
 import bell from "@iconify-icons/lucide/bell";
-import settings2 from "@iconify-icons/lucide/settings-2";
+import settingsIcon from "@iconify-icons/lucide/settings-2";
 import plus from "@iconify-icons/lucide/plus";
 import download from "@iconify-icons/lucide/download";
 import upload from "@iconify-icons/lucide/upload";
 import search from "@iconify-icons/lucide/search";
-import slidersHorizontal from "@iconify-icons/lucide/sliders-horizontal";
+import sliders from "@iconify-icons/lucide/sliders-horizontal";
 import chevronRight from "@iconify-icons/lucide/chevron-right";
 import chevronLeft from "@iconify-icons/lucide/chevron-left";
 import arrowUpRight from "@iconify-icons/lucide/arrow-up-right";
@@ -62,12 +57,7 @@ import {
   uniqueRows,
 } from "../shared/domain.js";
 
-import {
-  configured,
-  supabase,
-  request,
-  startDemo,
-} from "./data.js";
+import { configured, supabase, request, startDemo } from "./data.js";
 
 import {
   AppIcon,
@@ -78,16 +68,14 @@ import {
   CanvaIcon,
 } from "./Visuals.jsx";
 
-// MASKOT UI
 import LoginPage from "./components/LoginPage.jsx";
 import LoadingScreen from "./components/LoadingScreen.jsx";
 import WelcomeScreen from "./components/WelcomeScreen.jsx";
 import Mascot from "./components/Mascot.jsx";
 
-// CANVA
 import {
-  CanvaAccountModal,
   CanvaTable,
+  CanvaAccountModal,
 } from "./components/CanvaFeatures.jsx";
 
 import {
@@ -112,14 +100,17 @@ const I = ({ icon, size = 18, ...props }) => (
   />
 );
 
-const icons = {
+const serviceIcons = {
   netflix: NetflixIcon,
   week: WeekIcon,
   disney: DisneyIcon,
   canva: CanvaIcon,
 };
 
-const labelDate = (
+const identity = (r) =>
+  r.kind === "disney" ? r.profil : r.email;
+
+const dateLabel = (
   date,
   options = {
     day: "2-digit",
@@ -129,14 +120,9 @@ const labelDate = (
 ) =>
   date
     ? new Intl.DateTimeFormat("id-ID", options).format(
-        new Date(date + "T00:00:00"),
+        new Date(`${date}T00:00:00`),
       )
     : "Belum diatur";
-
-const identity = (record) =>
-  record.kind === "disney"
-    ? record.profil
-    : record.email;
 
 // ==========================================
 // REUSABLE UI
@@ -158,7 +144,7 @@ function ThemeToggle({ theme, onToggle }) {
 function Brand() {
   return (
     <div className="brand">
-      <AppIcon alt="Orinimo" />
+      <AppIcon alt="Logo Orinimo" />
       <div>
         <strong>
           orinimo<span>.</span>
@@ -170,12 +156,12 @@ function Brand() {
 }
 
 function StatusBadge({ record, date }) {
-  const current = status(record, date);
+  const s = status(record, date);
 
   return (
-    <span className={`badge ${current.tone}`}>
+    <span className={`badge ${s.tone}`}>
       <i />
-      {current.label}
+      {s.label}
     </span>
   );
 }
@@ -204,14 +190,14 @@ function Empty({
 
 function App() {
   const reduceMotion = useReducedMotion();
-  const lenis = useRef(null);
+  const lenisRef = useRef(null);
 
   const [theme, setTheme] = useState(() => {
     try {
-      const saved = localStorage.getItem("orinimo-theme");
+      const stored = localStorage.getItem("orinimo-theme");
 
-      if (["light", "dark"].includes(saved)) {
-        return saved;
+      if (stored === "light" || stored === "dark") {
+        return stored;
       }
 
       return window.matchMedia(
@@ -232,52 +218,47 @@ function App() {
   const [welcomeUser, setWelcomeUser] = useState(null);
 
   const toggleTheme = () => {
-    setTheme((current) =>
-      current === "dark" ? "light" : "dark",
-    );
+    setTheme((v) => (v === "dark" ? "light" : "dark"));
   };
 
-  // THEME
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     document.documentElement.style.colorScheme = theme;
 
     try {
       localStorage.setItem("orinimo-theme", theme);
-    } catch {
-      // Storage mungkin tidak tersedia.
-    }
+    } catch {}
   }, [theme]);
 
-  // SMOOTH SCROLL
+  // Smooth scroll
   useEffect(() => {
     if (reduceMotion) return;
 
-    const smooth = new Lenis({
+    const lenis = new Lenis({
       autoRaf: true,
       lerp: 0.12,
       smoothWheel: true,
     });
 
-    lenis.current = smooth;
+    lenisRef.current = lenis;
 
     return () => {
-      smooth.destroy();
-      lenis.current = null;
+      lenis.destroy();
+      lenisRef.current = null;
     };
   }, [reduceMotion]);
 
-  // SUPABASE AUTH
+  // Supabase authentication
   useEffect(() => {
-    let live = true;
+    let mounted = true;
 
     const timer = setTimeout(() => {
-      if (live) setBoot(false);
+      if (mounted) setBoot(false);
     }, 700);
 
     if (!supabase) {
       return () => {
-        live = false;
+        mounted = false;
         clearTimeout(timer);
       };
     }
@@ -286,7 +267,7 @@ function App() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(
       (_event, nextSession) => {
-        if (!live) return;
+        if (!mounted) return;
 
         setSession(nextSession);
         setAuthReady(true);
@@ -296,57 +277,51 @@ function App() {
     supabase.auth
       .getSession()
       .then(({ data, error }) => {
-        if (!live) return;
+        if (!mounted) return;
 
-        if (error) {
-          console.error("Gagal membaca sesi", error);
-        }
+        if (error) console.error(error);
 
         setSession(data?.session ?? null);
         setAuthReady(true);
       })
-      .catch((error) => {
-        if (!live) return;
+      .catch((err) => {
+        if (!mounted) return;
 
-        console.error(error);
+        console.error(err);
         setAuthReady(true);
       });
 
     return () => {
-      live = false;
+      mounted = false;
       clearTimeout(timer);
       subscription.unsubscribe();
     };
   }, []);
 
-  // Semua React Hooks berada sebelum return kondisional.
-  const welcome = Boolean(
+  const isWelcome = Boolean(
     welcomeUser &&
-    session?.user?.id === welcomeUser.id,
+      session?.user?.id === welcomeUser.id,
   );
 
-  const workspace = Boolean(
+  const isWorkspace = Boolean(
     demo || (session && !signingIn),
   );
 
-  const screenKey = welcome
+  const screenKey = isWelcome
     ? "welcome"
-    : workspace
+    : isWorkspace
       ? `workspace-${demo ? "demo" : session.user.id}`
       : "login";
 
-  const scrollToTop = () => {
-    if (lenis.current) {
-      lenis.current.scrollTo(0, {
-        duration: 0.65,
-      });
-    } else {
-      window.scrollTo({
-        top: 0,
-        behavior: reduceMotion ? "auto" : "smooth",
-      });
-    }
-  };
+  const scrollToTop = () =>
+    lenisRef.current
+      ? lenisRef.current.scrollTo(0, {
+          duration: 0.65,
+        })
+      : window.scrollTo({
+          top: 0,
+          behavior: reduceMotion ? "auto" : "smooth",
+        });
 
   if (boot || !authReady) {
     return (
@@ -358,14 +333,14 @@ function App() {
     );
   }
 
-  const screen = welcome ? (
+  const screen = isWelcome ? (
     <WelcomeScreen
       user={welcomeUser}
       onComplete={() => setWelcomeUser(null)}
       theme={theme}
       onThemeToggle={toggleTheme}
     />
-  ) : workspace ? (
+  ) : isWorkspace ? (
     <Workspace
       key={demo ? "demo" : session.user.id}
       demo={demo}
@@ -407,14 +382,15 @@ function App() {
   );
 
   return (
-    <AnimatePresence mode="wait" initial={false}>
+    <AnimatePresence
+      mode="wait"
+      initial={false}
+    >
       <motion.div
         key={screenKey}
         className="screen-transition"
         initial={
-          reduceMotion
-            ? false
-            : { opacity: 0 }
+          reduceMotion ? false : { opacity: 0 }
         }
         animate={{ opacity: 1 }}
         exit={{
@@ -459,9 +435,26 @@ function Workspace({
   const [busy, setBusy] = useState(false);
   const [clock, setClock] = useState(today());
 
+  // ==========================================
+  // DELETE ALL STATE
+  // ==========================================
+
+  const [deletingKind, setDeletingKind] = useState(null);
+
+  const [deleteProgress, setDeleteProgress] = useState({
+    done: 0,
+    total: 0,
+  });
+
+  const deleteLock = useRef(false);
+
   const selectedKind = kinds.includes(view)
     ? view
     : "netflix";
+
+  const categoryCount = rows.filter(
+    (r) => r.kind === selectedKind,
+  ).length;
 
   const title =
     view === "dashboard"
@@ -472,15 +465,18 @@ function Workspace({
           ? "Pengaturan"
           : `Rekapan ${names[view] || view}`;
 
-  // LOAD RECORDS
+  // ==========================================
+  // LOAD DATA
+  // ==========================================
+
   async function reload() {
     setLoading(true);
     setError("");
 
     try {
       setRows(await request("/accounts", {}, demo));
-    } catch (error) {
-      setError(error.message);
+    } catch (err) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -503,9 +499,9 @@ function Workspace({
   const reminders = useMemo(
     () =>
       rows
-        .filter((record) =>
+        .filter((r) =>
           ["overdue", "today", "soon"].includes(
-            status(record, clock).key,
+            status(r, clock).key,
           ),
         )
         .sort((a, b) =>
@@ -517,25 +513,39 @@ function Workspace({
   );
 
   const totalToday = rows.filter(
-    (record) =>
-      status(record, clock).key === "today",
+    (r) => status(r, clock).key === "today",
   ).length;
 
   const todaySummary = todayBreakdown(rows, clock);
 
-  function navigate(where, kind) {
+  // ==========================================
+  // NAVIGATION
+  // ==========================================
+
+  function navigate(nextView, nextKind) {
+    if (deleteLock.current) return;
+
     scrollToTop();
-    setView(where);
+    setView(nextView);
     setQuery("");
-    setFilter(where === "reminders" ? "today" : "all");
+
+    setFilter(
+      nextView === "reminders" ? "today" : "all",
+    );
+
     setPage(1);
     setMobile(false);
 
-    if (kind) setRemKind(kind);
+    if (nextKind) setRemKind(nextKind);
   }
 
-  // CREATE / UPDATE
+  // ==========================================
+  // CREATE / UPDATE ACCOUNT
+  // ==========================================
+
   async function save(data, id) {
+    if (deleteLock.current) return;
+
     setBusy(true);
 
     try {
@@ -564,15 +574,20 @@ function Workspace({
           : "Akun berhasil ditambahkan!",
         `${names[data.kind]} sudah diperbarui. Reminder otomatis menyesuaikan.`,
       );
-    } catch (error) {
-      await failure(error);
+    } catch (err) {
+      await failure(err);
     } finally {
       setBusy(false);
     }
   }
 
-  // DELETE
+  // ==========================================
+  // DELETE SINGLE ACCOUNT
+  // ==========================================
+
   async function remove(record) {
+    if (deleteLock.current) return;
+
     const answer = await confirm(
       "Hapus akun ini?",
       `${identity(record)} akan dihapus dari rekapan dan reminder.`,
@@ -598,15 +613,132 @@ function Workspace({
         "Akun berhasil dihapus",
         "Rekapan dan reminder telah diperbarui.",
       );
-    } catch (error) {
-      await failure(error);
+    } catch (err) {
+      await failure(err);
     }
   }
 
-  // EXPORT EXCEL
-  async function exportRows(kind, template = false) {
+  // ==========================================
+  // DELETE ALL ACCOUNTS IN ONE CATEGORY
+  // ==========================================
+
+  async function removeAll(kind) {
+    if (
+      deleteLock.current ||
+      !kinds.includes(kind)
+    ) {
+      return;
+    }
+
+    deleteLock.current = true;
+
+    // Hanya ambil record dari kategori yang dipilih.
+    // Tidak terpengaruh filter, pencarian, atau pagination.
+    const targets = rows.filter(
+      (record) => record.kind === kind,
+    );
+
+    const label = names[kind];
+
+    let deleted = 0;
+    let stoppedBy = null;
+
     try {
-      // Canva dan Disney tidak memiliki password akun.
+      if (!targets.length) return;
+
+      // Konfirmasi pertama
+      const first = await confirm(
+        `Hapus semua akun ${label}?`,
+        `${targets.length} akun ${label} akan dihapus permanen, termasuk yang tersembunyi oleh pencarian atau filter. Kategori lain tetap aman.`,
+        "Lanjutkan",
+      );
+
+      if (!first.isConfirmed) return;
+
+      // Konfirmasi kedua
+      const second = await confirm(
+        "Konfirmasi terakhir",
+        `Kamu akan menghapus permanen ${targets.length} akun dari kategori ${label}. Tindakan ini tidak bisa dibatalkan.`,
+        `Hapus ${targets.length} akun`,
+      );
+
+      if (!second.isConfirmed) return;
+
+      setDeletingKind(kind);
+
+      setDeleteProgress({
+        done: 0,
+        total: targets.length,
+      });
+
+      // Menggunakan API DELETE yang sudah tersedia.
+      // Tidak perlu endpoint baru atau migrasi Supabase.
+      for (const record of targets) {
+        try {
+          await request(
+            `/accounts/${record.id}`,
+            { method: "DELETE" },
+            demo,
+          );
+
+          deleted += 1;
+
+          setRows((previous) =>
+            previous.filter(
+              (item) => item.id !== record.id,
+            ),
+          );
+
+          setDeleteProgress({
+            done: deleted,
+            total: targets.length,
+          });
+        } catch (err) {
+          stoppedBy = err;
+
+          // Berhenti pada error pertama.
+          // Mencegah permintaan gagal berulang kali.
+          break;
+        }
+      }
+
+      // Sinkronkan jumlah akun dengan backend.
+      await reload();
+
+      if (stoppedBy) {
+        await failure(
+          new Error(
+            `${deleted} dari ${targets.length} akun ${label} berhasil dihapus. Proses terhenti: ${stoppedBy.message}. Periksa akun yang tersisa sebelum mengulangi.`,
+          ),
+        );
+      } else {
+        await success(
+          "Hapus semua berhasil!",
+          `${deleted} akun ${label} berhasil dihapus. Kategori lainnya tidak berubah.`,
+        );
+      }
+    } catch (err) {
+      await failure(err);
+    } finally {
+      setDeletingKind(null);
+
+      setDeleteProgress({
+        done: 0,
+        total: 0,
+      });
+
+      deleteLock.current = false;
+    }
+  }
+
+  // ==========================================
+  // EXPORT EXCEL
+  // ==========================================
+
+  async function exportRows(kind, template = false) {
+    if (deleteLock.current) return;
+
+    try {
       if (
         !template &&
         ["netflix", "week"].includes(kind)
@@ -625,7 +757,7 @@ function Workspace({
       );
 
       const bytes = await writeWorkbook(
-        rows.filter((record) => record.kind === kind),
+        rows.filter((r) => r.kind === kind),
         kind,
         template,
       );
@@ -637,7 +769,9 @@ function Workspace({
       );
 
       const link = document.createElement("a");
+
       link.href = url;
+
       link.download =
         `${template ? "template-" : ""}rekapan-${kind}-${today()}.xlsx`;
 
@@ -652,13 +786,18 @@ function Workspace({
           ? "Template siap diunduh"
           : "Excel siap diunduh",
       );
-    } catch (error) {
-      await failure(error);
+    } catch (err) {
+      await failure(err);
     }
   }
 
+  // ==========================================
   // LOGOUT
+  // ==========================================
+
   async function logout() {
+    if (deleteLock.current) return;
+
     const answer = await confirm(
       "Keluar dari workspace?",
       demo
@@ -671,12 +810,15 @@ function Workspace({
 
     try {
       await onLogout();
-    } catch (error) {
-      await failure(error);
+    } catch (err) {
+      await failure(err);
     }
   }
 
-  // FILTER & SORT
+  // ==========================================
+  // FILTER, SORT, PAGINATION
+  // ==========================================
+
   const listing = rows
     .filter((record) =>
       view === "reminders"
@@ -740,19 +882,34 @@ function Workspace({
     <button
       key={key}
       type="button"
-      className={`nav-link ${view === key ? "active" : ""}`}
+      disabled={Boolean(deletingKind)}
+      className={`nav-link ${
+        view === key ? "active" : ""
+      }`}
       onClick={() => navigate(key)}
     >
       <IconComponent
-        size={kinds.includes(key) ? 28 : 19}
+        size={
+          ["netflix", "week", "disney", "canva"].includes(key)
+            ? 28
+            : 19
+        }
       />
+
       <span>{label}</span>
+
       {count > 0 && <b>{count}</b>}
     </button>
   );
 
+  // ==========================================
+  // RENDER WORKSPACE
+  // ==========================================
+
   return (
     <div className="app-shell">
+
+      {/* MOBILE OVERLAY */}
       {mobile && (
         <button
           className="sidebar-overlay"
@@ -761,17 +918,26 @@ function Workspace({
         />
       )}
 
-      {/* SIDEBAR */}
-      <aside className={`sidebar ${mobile ? "open" : ""}`}>
+      {/* ======================================
+          SIDEBAR
+          ====================================== */}
+
+      <aside
+        className={`sidebar ${
+          mobile ? "open" : ""
+        }`}
+      >
         <Brand />
 
-        <span className="nav-label">WORKSPACE</span>
+        <span className="nav-label">
+          WORKSPACE
+        </span>
 
         <nav>
           {nav(
             "dashboard",
             "Dashboard",
-            () => <I icon={layoutDashboard} />,
+            () => <I icon={dashboardIcon} />,
           )}
 
           <span className="nav-label inner">
@@ -797,16 +963,22 @@ function Workspace({
           {nav(
             "settings",
             "Pengaturan",
-            () => <I icon={settings2} />,
+            () => <I icon={settingsIcon} />,
           )}
         </nav>
 
         <div className="sidebar-bottom">
-          <button className="user-card" onClick={logout}>
+          <button
+            className="user-card"
+            onClick={logout}
+            disabled={Boolean(deletingKind)}
+          >
             <span className="user-avatar">
               {demo
                 ? "D"
-                : (session?.user.email || "A")[0].toUpperCase()}
+                : (
+                    session?.user.email || "A"
+                  )[0].toUpperCase()}
             </span>
 
             <span>
@@ -830,8 +1002,13 @@ function Workspace({
         </div>
       </aside>
 
-      {/* MAIN */}
+      {/* ======================================
+          MAIN
+          ====================================== */}
+
       <div className="main-shell">
+
+        {/* TOPBAR */}
         <header className="topbar">
           <div>
             <button
@@ -856,7 +1033,9 @@ function Workspace({
             />
 
             {demo ? (
-              <span className="demo-pill">Mode demo</span>
+              <span className="demo-pill">
+                Mode demo
+              </span>
             ) : (
               <span className="connection">
                 <i /> Workspace aktif
@@ -866,6 +1045,7 @@ function Workspace({
             <button
               className="icon-btn notification"
               aria-label="Lihat reminder"
+              disabled={Boolean(deletingKind)}
               onClick={() => navigate("reminders")}
             >
               <I icon={bell} size={20} />
@@ -875,12 +1055,17 @@ function Workspace({
             <span className="top-avatar">
               {demo
                 ? "D"
-                : (session?.user.email || "A")[0].toUpperCase()}
+                : (
+                    session?.user.email || "A"
+                  )[0].toUpperCase()}
             </span>
           </div>
         </header>
 
-        <AnimatePresence mode="wait" initial={false}>
+        <AnimatePresence
+          mode="wait"
+          initial={false}
+        >
           <motion.main
             key={view}
             className="main-content"
@@ -889,7 +1074,10 @@ function Workspace({
                 ? false
                 : { opacity: 0, y: 10 }
             }
-            animate={{ opacity: 1, y: 0 }}
+            animate={{
+              opacity: 1,
+              y: 0,
+            }}
             exit={{
               opacity: reduceMotion ? 1 : 0,
               y: reduceMotion ? 0 : -5,
@@ -898,7 +1086,8 @@ function Workspace({
               duration: reduceMotion ? 0 : 0.28,
             }}
           >
-            {/* HEADING */}
+
+            {/* PAGE HEADING */}
             <div className="page-heading">
               <div>
                 <span className="eyebrow">
@@ -910,8 +1099,13 @@ function Workspace({
                 </span>
 
                 <h1>
-                  {view === "dashboard" ? "Overview" : title}
-                  <span className="heading-dot">.</span>
+                  {view === "dashboard"
+                    ? "Overview"
+                    : title}
+
+                  <span className="heading-dot">
+                    .
+                  </span>
                 </h1>
 
                 <p>
@@ -925,11 +1119,14 @@ function Workspace({
                 </p>
               </div>
 
+              {/* PAGE ACTIONS */}
               <div className="heading-actions">
+
                 {view === "dashboard" ? (
                   <span className="date-chip">
-                    <I icon={calendarDays} />
-                    {labelDate(clock, {
+                    <I icon={calendarIcon} />
+
+                    {dateLabel(clock, {
                       weekday: "short",
                       day: "numeric",
                       month: "long",
@@ -938,8 +1135,12 @@ function Workspace({
                   </span>
                 ) : kinds.includes(view) ? (
                   <>
+
+                    {/* EXPORT */}
                     <button
+                      type="button"
                       className="btn secondary"
+                      disabled={Boolean(deletingKind)}
                       onClick={() =>
                         exportRows(selectedKind)
                       }
@@ -948,8 +1149,40 @@ function Workspace({
                       Ekspor Excel
                     </button>
 
+                    {/* DELETE ALL */}
                     <button
+                      type="button"
+                      className="btn secondary"
+                      disabled={
+                        Boolean(deletingKind) ||
+                        categoryCount === 0
+                      }
+                      onClick={() =>
+                        removeAll(selectedKind)
+                      }
+                      style={{
+                        borderColor: "#f0c9c6",
+                        color: "#ad3d37",
+                      }}
+                    >
+                      <I
+                        icon={
+                          deletingKind
+                            ? loaderCircle
+                            : trash2
+                        }
+                      />
+
+                      {deletingKind
+                        ? `Menghapus ${deleteProgress.done}/${deleteProgress.total}`
+                        : `Hapus Semua (${categoryCount})`}
+                    </button>
+
+                    {/* ADD ACCOUNT */}
+                    <button
+                      type="button"
                       className="btn primary"
+                      disabled={Boolean(deletingKind)}
                       onClick={() =>
                         setModal({
                           kind: selectedKind,
@@ -964,11 +1197,32 @@ function Workspace({
               </div>
             </div>
 
-            {/* BODY */}
+            {/* DELETE ALL PROGRESS */}
+            {deletingKind && (
+              <div
+                role="status"
+                aria-live="polite"
+                className="mb-4 rounded-xl border border-[#efd3c9] bg-[#fff5f0] px-4 py-3 text-xs text-[#92433c] dark:border-[#734943] dark:bg-[#352526] dark:text-[#f2c8c0]"
+              >
+                Sedang menghapus akun {names[deletingKind]}:
+                {" "}
+                {deleteProgress.done} dari {deleteProgress.total}.
+                Jangan tutup halaman sampai selesai.
+              </div>
+            )}
+
+            {/* ==================================
+                CONTENT
+                ================================== */}
+
             {error ? (
               <div className="error-state">
                 <I icon={alertCircle} size={28} />
-                <h3>Data belum dapat dimuat</h3>
+
+                <h3>
+                  Data belum dapat dimuat
+                </h3>
+
                 <p>{error}</p>
 
                 <button
@@ -982,8 +1236,12 @@ function Workspace({
             ) : loading ? (
               <div className="skeleton-grid">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="skeleton" />
+                  <div
+                    key={i}
+                    className="skeleton"
+                  />
                 ))}
+
                 <div className="skeleton full" />
               </div>
             ) : view === "dashboard" ? (
@@ -1004,42 +1262,41 @@ function Workspace({
               />
             ) : (
               <>
+
+                {/* CATEGORY STATS */}
                 {kinds.includes(view) && (
                   <div className="mini-stats">
                     <div>
                       <span>Total akun</span>
+
                       <strong>
-                        {
-                          rows.filter(
-                            (r) => r.kind === view,
-                          ).length
-                        }
+                        {categoryCount}
                         <small>akun</small>
                       </strong>
                     </div>
 
                     <div>
                       <span>Aktif</span>
+
                       <strong className="green-text">
-                        {
-                          rows.filter(
-                            (r) =>
-                              r.kind === view &&
-                              status(r, clock).key === "active",
-                          ).length
-                        }
+                        {rows.filter(
+                          (r) =>
+                            r.kind === view &&
+                            status(r, clock).key === "active",
+                        ).length}
+
                         <small>akun</small>
                       </strong>
                     </div>
 
                     <div>
                       <span>Perlu perhatian</span>
+
                       <strong className="brand-text">
-                        {
-                          reminders.filter(
-                            (r) => r.kind === view,
-                          ).length
-                        }
+                        {reminders.filter(
+                          (r) => r.kind === view,
+                        ).length}
+
                         <small>akun</small>
                       </strong>
                     </div>
@@ -1075,14 +1332,17 @@ function Workspace({
                                 <span
                                   className={`breakdown-dot ${item.kind}`}
                                 />
+
                                 <strong>
                                   {item.count} akun
                                 </strong>
+
                                 <span>
                                   {item.kind === "netflix"
                                     ? `Netflix · ${item.sharing}`
                                     : names[item.kind]}
                                 </span>
+
                                 <span>
                                   jatuh tempo hari ini
                                 </span>
@@ -1108,14 +1368,13 @@ function Workspace({
                           {kind === "all"
                             ? "Semua layanan"
                             : names[kind]}
+
                           <span>
-                            {
-                              reminders.filter(
-                                (record) =>
-                                  kind === "all" ||
-                                  record.kind === kind,
-                              ).length
-                            }
+                            {reminders.filter(
+                              (record) =>
+                                kind === "all" ||
+                                record.kind === kind,
+                            ).length}
                           </span>
                         </button>
                       ))}
@@ -1125,6 +1384,7 @@ function Workspace({
 
                 {/* TABLE PANEL */}
                 <section className="panel records-panel">
+
                   <div className="panel-heading">
                     <div>
                       <h2>
@@ -1148,8 +1408,12 @@ function Workspace({
 
                     {kinds.includes(view) && (
                       <button
+                        type="button"
                         className="btn secondary small"
-                        onClick={() => setImportOpen(true)}
+                        disabled={Boolean(deletingKind)}
+                        onClick={() =>
+                          setImportOpen(true)
+                        }
                       >
                         <I icon={upload} size={15} />
                         Impor Excel
@@ -1157,7 +1421,9 @@ function Workspace({
                     )}
                   </div>
 
+                  {/* TABLE TOOLS */}
                   <div className="table-toolbar">
+
                     <div className="search-field">
                       <I icon={search} />
 
@@ -1184,7 +1450,7 @@ function Workspace({
 
                     <div className="toolbar-select">
                       <I
-                        icon={slidersHorizontal}
+                        icon={sliders}
                         size={15}
                       />
 
@@ -1199,12 +1465,15 @@ function Workspace({
                         <option value="all">
                           Semua status
                         </option>
+
                         <option value="today">
                           Hari ini
                         </option>
+
                         <option value="soon">
                           Segera
                         </option>
+
                         <option value="overdue">
                           Terlewat
                         </option>
@@ -1214,6 +1483,7 @@ function Workspace({
                             <option value="active">
                               Aktif
                             </option>
+
                             <option value="unset">
                               Belum diatur
                             </option>
@@ -1233,16 +1503,18 @@ function Workspace({
                       <option value="newest">
                         Terbaru
                       </option>
+
                       <option value="due">
                         Tanggal terdekat
                       </option>
+
                       <option value="name">
                         Nama A–Z
                       </option>
                     </select>
                   </div>
 
-                  {/* CANVA TABLE / REGULAR TABLE */}
+                  {/* CANVA / NORMAL TABLE */}
                   {view === "canva" ? (
                     <CanvaTable
                       records={pageRows}
@@ -1262,9 +1534,11 @@ function Workspace({
                     />
                   )}
 
+                  {/* PAGINATION */}
                   <div className="pagination">
                     <span>
-                      Menampilkan{" "}
+                      Menampilkan
+                      {" "}
                       <b>
                         {listing.length
                           ? (safePage - 1) * 8 + 1
@@ -1274,7 +1548,8 @@ function Workspace({
                           safePage * 8,
                           listing.length,
                         )}
-                      </b>{" "}
+                      </b>
+                      {" "}
                       dari <b>{listing.length}</b> akun
                     </span>
 
@@ -1314,6 +1589,7 @@ function Workspace({
               </>
             )}
 
+            {/* FOOTER */}
             <footer className="page-footer">
               <span>
                 © {new Date().getFullYear()} Orinimo ·
@@ -1322,6 +1598,7 @@ function Workspace({
 
               <span>
                 <I icon={shieldCheck} size={13} />
+
                 {demo
                   ? "Data demo tidak tersimpan"
                   : "Akses admin terlindungi"}
@@ -1331,7 +1608,7 @@ function Workspace({
         </AnimatePresence>
       </div>
 
-      {/* FORM TAMBAH / EDIT */}
+      {/* ACCOUNT MODALS */}
       {modal &&
         (modal.kind === "canva" ? (
           <CanvaAccountModal
@@ -1353,7 +1630,7 @@ function Workspace({
           />
         ))}
 
-      {/* IMPORT EXCEL */}
+      {/* IMPORT MODAL */}
       {importOpen && (
         <ImportModal
           kind={selectedKind}
@@ -1386,18 +1663,15 @@ function Dashboard({
   setModal,
 }) {
   const active = rows.filter(
-    (record) =>
-      status(record, date).key === "active",
+    (r) => status(r, date).key === "active",
   ).length;
 
   const soon = reminders.filter(
-    (record) =>
-      status(record, date).key === "soon",
+    (r) => status(r, date).key === "soon",
   ).length;
 
   const overdue = reminders.filter(
-    (record) =>
-      status(record, date).key === "overdue",
+    (r) => status(r, date).key === "overdue",
   ).length;
 
   const stats = [
@@ -1419,7 +1693,7 @@ function Dashboard({
       "Jadwal hari ini",
       totalToday,
       "siap untuk diperbarui",
-      calendarDays,
+      calendarIcon,
       "orange",
     ],
     [
@@ -1433,9 +1707,19 @@ function Dashboard({
 
   return (
     <>
+      {/* STATS */}
       <div className="stats-grid">
         {stats.map(
-          ([name, value, subtitle, iconData, tone], i) => (
+          (
+            [
+              name,
+              value,
+              subtitle,
+              iconData,
+              tone,
+            ],
+            i,
+          ) => (
             <div
               key={name}
               className="stat-card"
@@ -1464,8 +1748,10 @@ function Dashboard({
         )}
       </div>
 
+      {/* DASHBOARD MIDDLE */}
       <div className="dashboard-middle">
         <section className="welcome-card">
+
           <span className="eyebrow">
             LESS MANAGING. MORE LIVING.
           </span>
@@ -1484,7 +1770,9 @@ function Dashboard({
           <button
             className="btn light"
             onClick={() =>
-              setModal({ kind: "netflix" })
+              setModal({
+                kind: "netflix",
+              })
             }
           >
             <I icon={plus} />
@@ -1500,7 +1788,7 @@ function Dashboard({
             <div className="orbit orbit-b" />
 
             <div className="floating-card behind">
-              <I icon={calendarDays} size={23} />
+              <I icon={calendarIcon} size={23} />
               <div />
               <div />
             </div>
@@ -1510,8 +1798,13 @@ function Dashboard({
                 <I icon={check} size={27} />
               </span>
 
-              <b>All under control.</b>
-              <small>A little more organized.</small>
+              <b>
+                All under control.
+              </b>
+
+              <small>
+                A little more organized.
+              </small>
 
               <div className="art-line" />
               <div className="art-line short" />
@@ -1531,9 +1824,14 @@ function Dashboard({
           </div>
         </section>
 
+        {/* SERVICES */}
         <section className="panel portfolio">
+
           <div className="panel-heading">
-            <h2>Ringkasan layanan</h2>
+            <h2>
+              Ringkasan layanan
+            </h2>
+
             <I icon={clapperboard} />
           </div>
 
@@ -1550,7 +1848,9 @@ function Dashboard({
               <Service kind={kind} />
 
               <span>
-                <strong>{names[kind]}</strong>
+                <strong>
+                  {names[kind]}
+                </strong>
 
                 <small>
                   {kind === "netflix"
@@ -1564,12 +1864,9 @@ function Dashboard({
               </span>
 
               <b>
-                {
-                  rows.filter(
-                    (record) =>
-                      record.kind === kind,
-                  ).length
-                }
+                {rows.filter(
+                  (r) => r.kind === kind,
+                ).length}
               </b>
 
               <I icon={chevronRight} size={16} />
@@ -1577,18 +1874,28 @@ function Dashboard({
           ))}
 
           <div className="portfolio-total">
-            <span>Total seluruh layanan</span>
-            <strong>{rows.length} akun</strong>
+            <span>
+              Total seluruh layanan
+            </span>
+
+            <strong>
+              {rows.length} akun
+            </strong>
           </div>
         </section>
       </div>
 
+      {/* DASHBOARD BOTTOM */}
       <div className="dashboard-bottom">
+
+        {/* REMINDERS */}
         <section className="panel reminder-panel">
+
           <div className="panel-heading">
             <div>
               <h2>
-                Perlu perhatian{" "}
+                Perlu perhatian
+                {" "}
                 <span className="count-tag">
                   {reminders.length}
                 </span>
@@ -1623,63 +1930,70 @@ function Dashboard({
                 </thead>
 
                 <tbody>
-                  {reminders.slice(0, 4).map((record) => (
-                    <tr key={record.id}>
-                      <td>
-                        <div className="account-cell">
-                          <Service kind={record.kind} />
+                  {reminders
+                    .slice(0, 4)
+                    .map((record) => (
+                      <tr key={record.id}>
+                        <td>
+                          <div className="account-cell">
+                            <Service kind={record.kind} />
 
-                          <span>
-                            <strong>
-                              {identity(record)}
-                            </strong>
+                            <span>
+                              <strong>
+                                {identity(record)}
+                              </strong>
 
-                            <small>
-                              {names[record.kind]}
-                            </small>
-                          </span>
-                        </div>
-                      </td>
+                              <small>
+                                {names[record.kind]}
+                              </small>
+                            </span>
+                          </div>
+                        </td>
 
-                      <td>
-                        {labelDate(dueDate(record), {
-                          day: "2-digit",
-                          month: "short",
-                        })}
-                      </td>
+                        <td>
+                          {dateLabel(
+                            dueDate(record),
+                            {
+                              day: "2-digit",
+                              month: "short",
+                            },
+                          )}
+                        </td>
 
-                      <td>
-                        <StatusBadge
-                          record={record}
-                          date={date}
-                        />
-                      </td>
+                        <td>
+                          <StatusBadge
+                            record={record}
+                            date={date}
+                          />
+                        </td>
 
-                      <td>
-                        <button
-                          className="icon-btn"
-                          onClick={() =>
-                            setModal(record)
-                          }
-                          aria-label={`Edit ${identity(record)}`}
-                        >
-                          <I icon={arrowUpRight} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                        <td>
+                          <button
+                            className="icon-btn"
+                            onClick={() =>
+                              setModal(record)
+                            }
+                            aria-label={`Edit ${identity(record)}`}
+                          >
+                            <I icon={arrowUpRight} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
           ) : (
             <Empty
               title="Semua jadwal aman"
-              text="Belum ada akun yang mendekati jadwal reset atau masa aktif."
+              text="Belum ada akun mendekati jatuh tempo."
             />
           )}
         </section>
 
+        {/* QUICK ACCESS */}
         <section className="panel quick-panel">
+
           <div className="panel-heading">
             <h2>Akses cepat</h2>
             <I icon={sparkles} />
@@ -1690,7 +2004,7 @@ function Dashboard({
           </p>
 
           {kinds.map((kind) => {
-            const IconComponent = icons[kind];
+            const ServiceIcon = serviceIcons[kind];
 
             return (
               <button
@@ -1701,7 +2015,7 @@ function Dashboard({
                 }
               >
                 <span className="quick-icon">
-                  <IconComponent size={28} />
+                  <ServiceIcon size={28} />
                 </span>
 
                 <span>
@@ -1731,9 +2045,7 @@ function Dashboard({
             <span className="notice-icon">
               <I
                 icon={
-                  overdue
-                    ? alertCircle
-                    : circleCheck
+                  overdue ? alertCircle : circleCheck
                 }
               />
             </span>
@@ -1770,9 +2082,14 @@ function Password({ value = "" }) {
             ? "Sembunyikan password"
             : "Tampilkan password"
         }
-        onClick={() => setShow(!show)}
+        onClick={() =>
+          setShow(!show)
+        }
       >
-        <I icon={show ? eyeOff : eye} size={15} />
+        <I
+          icon={show ? eyeOff : eye}
+          size={15}
+        />
       </button>
 
       <button
@@ -1796,7 +2113,7 @@ function Password({ value = "" }) {
 }
 
 // ==========================================
-// REGULAR ACCOUNT TABLE
+// ACCOUNT TABLE
 // ==========================================
 
 function AccountTable({
@@ -1816,9 +2133,13 @@ function AccountTable({
   return (
     <div className="table-scroll">
       <table className="account-table">
+
         <thead>
           <tr>
-            <th>{disney ? "NOMOR" : "NO."}</th>
+            <th>
+              {disney ? "NOMOR" : "NO."}
+            </th>
+
             <th>
               {disney ? "PROFIL" : "AKUN / PROFIL"}
             </th>
@@ -1829,7 +2150,9 @@ function AccountTable({
                 <th>LOKASI</th>
               </>
             ) : rem ? (
-              <th>LAYANAN / TIPE SHARING</th>
+              <th>
+                LAYANAN / TIPE SHARING
+              </th>
             ) : (
               <th>PASSWORD</th>
             )}
@@ -1848,7 +2171,10 @@ function AccountTable({
                   : "TANGGAL RESET"}
             </th>
 
-            {disney && <th>DURASI</th>}
+            {disney && (
+              <th>DURASI</th>
+            )}
+
             <th>STATUS</th>
             <th>AKSI</th>
           </tr>
@@ -1857,13 +2183,13 @@ function AccountTable({
         <tbody>
           {records.map((record, i) => (
             <tr key={record.id}>
+
               <td className="row-number">
                 {disney
                   ? record.nomor
-                  : String(offset + i + 1).padStart(
-                      2,
-                      "0",
-                    )}
+                  : String(
+                      offset + i + 1,
+                    ).padStart(2, "0")}
               </td>
 
               <td>
@@ -1916,7 +2242,7 @@ function AccountTable({
 
               {week || disney ? (
                 <td className="date-cell">
-                  {labelDate(record.tanggal_terjual)}
+                  {dateLabel(record.tanggal_terjual)}
                 </td>
               ) : !rem ? (
                 <td>
@@ -1927,7 +2253,7 @@ function AccountTable({
               ) : null}
 
               <td className="date-cell">
-                {labelDate(dueDate(record))}
+                {dateLabel(dueDate(record))}
 
                 {rem && (
                   <small className="remaining">
@@ -1945,7 +2271,9 @@ function AccountTable({
               </td>
 
               {disney && (
-                <td>{record.durasi} hari</td>
+                <td>
+                  {record.durasi} hari
+                </td>
               )}
 
               <td>
@@ -1959,7 +2287,9 @@ function AccountTable({
                 <div className="row-actions">
                   <button
                     className="icon-btn"
-                    onClick={() => onEdit(record)}
+                    onClick={() =>
+                      onEdit(record)
+                    }
                     aria-label={`Edit ${identity(record)}`}
                   >
                     <I icon={pencil} />
@@ -1967,7 +2297,9 @@ function AccountTable({
 
                   <button
                     className="icon-btn delete"
-                    onClick={() => onDelete(record)}
+                    onClick={() =>
+                      onDelete(record)
+                    }
                     aria-label={`Hapus ${identity(record)}`}
                   >
                     <I icon={trash2} />
@@ -1997,7 +2329,7 @@ function ModalFrame({
 
   useEffect(() => {
     const previous = document.activeElement;
-    const prevOverflow = document.body.style.overflow;
+    const overflow = document.body.style.overflow;
 
     document.body.style.overflow = "hidden";
 
@@ -2012,35 +2344,40 @@ function ModalFrame({
         return;
       }
 
-      if (event.key === "Escape" && !busy) {
+      if (
+        event.key === "Escape" &&
+        !busy
+      ) {
         onClose();
       }
 
       if (event.key !== "Tab") return;
 
-      const elements = [
-        ...ref.current.querySelectorAll(
+      const elements = Array.from(
+        ref.current?.querySelectorAll(
           "button:not(:disabled),input:not(:disabled),select:not(:disabled),textarea:not(:disabled)",
-        ),
-      ].filter(
+        ) || [],
+      ).filter(
         (element) => element.offsetParent !== null,
       );
 
+      if (!elements.length) return;
+
       const first = elements[0];
-      const last = elements.at(-1);
+      const last = elements[elements.length - 1];
 
       if (
         event.shiftKey &&
         document.activeElement === first
       ) {
         event.preventDefault();
-        last?.focus();
+        last.focus();
       } else if (
         !event.shiftKey &&
         document.activeElement === last
       ) {
         event.preventDefault();
-        first?.focus();
+        first.focus();
       }
     };
 
@@ -2055,10 +2392,10 @@ function ModalFrame({
         keyHandler,
       );
 
-      document.body.style.overflow = prevOverflow;
+      document.body.style.overflow = overflow;
       previous?.focus?.();
     };
-  }, [busy]);
+  }, [busy, onClose]);
 
   return (
     <div
@@ -2080,11 +2417,13 @@ function ModalFrame({
         aria-label={title}
         data-lenis-prevent
       >
+
         <div className="modal-heading">
           <div>
             <span className="eyebrow">
               ORINIMO WORKSPACE
             </span>
+
             <h2>{title}</h2>
             <p>{subtitle}</p>
           </div>
@@ -2177,6 +2516,7 @@ function AccountModal({
   ) => (
     <label key={key}>
       {title}
+
       {required && (
         <span className="required"> *</span>
       )}
@@ -2199,13 +2539,15 @@ function AccountModal({
 
     try {
       const data = cleanRecord(form);
+
       setFormError("");
+
       onSave(data, record.id);
-    } catch (error) {
+    } catch (err) {
       setFormError(
-        error.issues
+        err.issues
           ?.map((issue) => issue.message)
-          .join(" ") || error.message,
+          .join(" ") || err.message,
       );
     }
   }
@@ -2221,13 +2563,37 @@ function AccountModal({
     >
       <form onSubmit={submit}>
         <div className="modal-body">
+
           <div className="form-grid">
             {disney ? (
               <>
-                {field("nomor", "Nomor", "text", true)}
-                {field("profil", "Profil", "text", true)}
-                {field("device", "Device", "text", true)}
-                {field("lokasi", "Lokasi", "text", true)}
+                {field(
+                  "nomor",
+                  "Nomor",
+                  "text",
+                  true,
+                )}
+
+                {field(
+                  "profil",
+                  "Profil",
+                  "text",
+                  true,
+                )}
+
+                {field(
+                  "device",
+                  "Device",
+                  "text",
+                  true,
+                )}
+
+                {field(
+                  "lokasi",
+                  "Lokasi",
+                  "text",
+                  true,
+                )}
               </>
             ) : (
               <>
@@ -2246,7 +2612,11 @@ function AccountModal({
 
                   <div className="input-icon password-input">
                     <input
-                      type={show ? "text" : "password"}
+                      type={
+                        show
+                          ? "text"
+                          : "password"
+                      }
                       value={form.password}
                       onChange={(event) =>
                         update(
@@ -2267,7 +2637,9 @@ function AccountModal({
                       aria-label="Lihat password"
                     >
                       <I
-                        icon={show ? eyeOff : eye}
+                        icon={
+                          show ? eyeOff : eye
+                        }
                       />
                     </button>
                   </div>
@@ -2333,6 +2705,7 @@ function AccountModal({
             {!disney && (
               <label className="span-two">
                 Catatan
+
                 <textarea
                   rows={3}
                   value={form.deskripsi || ""}
@@ -2358,6 +2731,7 @@ function AccountModal({
                   if (event.target.checked) {
                     setForm((previous) => ({
                       ...previous,
+
                       [disney
                         ? "tanggal_reset"
                         : "durasi_habis"]: addDays(
@@ -2379,9 +2753,10 @@ function AccountModal({
 
           <div className="form-hint">
             <I icon={bell} />
+
             <span>
-              Reminder {week ? "H−2" : "H−3"}{" "}
-              sebelum jatuh tempo.
+              Reminder {week ? "H−2" : "H−3"} sebelum
+              jatuh tempo.
             </span>
           </div>
 
@@ -2396,6 +2771,7 @@ function AccountModal({
         </div>
 
         <div className="modal-footer">
+
           <button
             type="button"
             className="btn secondary"
@@ -2417,7 +2793,10 @@ function AccountModal({
                   : check
               }
             />
-            {busy ? "Menyimpan…" : "Simpan akun"}
+
+            {busy
+              ? "Menyimpan…"
+              : "Simpan akun"}
           </button>
         </div>
       </form>
@@ -2449,12 +2828,16 @@ function ImportModal({
     setError("");
     setPreview(null);
 
-    if (!file.name.toLowerCase().endsWith(".xlsx")) {
+    if (
+      !file.name.toLowerCase().endsWith(".xlsx")
+    ) {
       setError("Pilih file Excel .xlsx");
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
+    if (
+      file.size > 5 * 1024 * 1024
+    ) {
       setError("Ukuran file maksimal 5 MB.");
       return;
     }
@@ -2482,8 +2865,8 @@ function ImportModal({
         duplicates: distinct.skipped,
         rows: distinct.rows,
       });
-    } catch (error) {
-      setError(error.message);
+    } catch (err) {
+      setError(err.message);
     } finally {
       setBusy(false);
     }
@@ -2515,14 +2898,12 @@ function ImportModal({
 
       await success(
         "Impor selesai!",
-        `${
-          result.imported
-        } akun berhasil ditambahkan. ${
+        `${result.imported} akun berhasil ditambahkan. ${
           result.skipped + preview.duplicates
         } duplikat dilewati.`,
       );
-    } catch (error) {
-      await failure(error);
+    } catch (err) {
+      await failure(err);
     } finally {
       setBusy(false);
     }
@@ -2536,8 +2917,10 @@ function ImportModal({
       onClose={onClose}
     >
       <div className="modal-body">
+
         <div className="import-help">
           <I icon={fileSpreadsheet} size={20} />
+
           <span>
             Header kolom harus sesuai format template.
           </span>
@@ -2599,7 +2982,7 @@ function ImportModal({
           </strong>
 
           <small>
-            .xlsx · Maksimal 5MB / 2.000 baris
+            .xlsx · Maksimal 5 MB / 2.000 baris
           </small>
         </button>
 
@@ -2615,18 +2998,25 @@ function ImportModal({
         {preview && (
           <>
             <div className="import-stats">
+
               <span>
-                <b>{preview.rows.length}</b>
+                <b>
+                  {preview.rows.length}
+                </b>
                 siap diimpor
               </span>
 
               <span>
-                <b>{preview.duplicates}</b>
+                <b>
+                  {preview.duplicates}
+                </b>
                 duplikat dilewati
               </span>
 
               <span>
-                <b>{preview.errors.length}</b>
+                <b>
+                  {preview.errors.length}
+                </b>
                 kesalahan
               </span>
             </div>
@@ -2640,10 +3030,9 @@ function ImportModal({
                 <ul>
                   {preview.errors
                     .slice(0, 8)
-                    .map((error) => (
-                      <li key={error.row}>
-                        Baris {error.row}:{" "}
-                        {error.message}
+                    .map((err) => (
+                      <li key={err.row}>
+                        Baris {err.row}: {err.message}
                       </li>
                     ))}
                 </ul>
@@ -2665,6 +3054,7 @@ function ImportModal({
       </div>
 
       <div className="modal-footer">
+
         <button
           type="button"
           className="btn secondary"
@@ -2693,7 +3083,7 @@ function ImportModal({
 }
 
 // ==========================================
-// SETTINGS PAGE
+// SETTINGS
 // ==========================================
 
 function Settings({
@@ -2739,12 +3129,14 @@ function Settings({
 
   return (
     <div className="settings-grid">
+
       {groups.map(([heading, items]) => (
         <section
           key={heading}
           className="panel settings-panel"
         >
           <h2>{heading}</h2>
+
           <p>
             Pengaturan operasional Orinimo
           </p>
@@ -2761,6 +3153,7 @@ function Settings({
       ))}
 
       <section className="panel settings-panel theme-settings">
+
         <h2>Tampilan</h2>
 
         <p>
@@ -2776,11 +3169,9 @@ function Settings({
                   : sun
               }
             />
+
             <strong>
-              Mode{" "}
-              {theme === "dark"
-                ? "gelap"
-                : "terang"}
+              Mode {theme === "dark" ? "gelap" : "terang"}
             </strong>
           </span>
 
@@ -2792,6 +3183,7 @@ function Settings({
 
         <div className="form-hint">
           <I icon={bell} />
+
           <span>
             Reminder hanya tampil di aplikasi.
             Tidak mengirim email atau WhatsApp.
@@ -2803,7 +3195,7 @@ function Settings({
 }
 
 // ==========================================
-// RENDER APP
+// RENDER APPLICATION
 // ==========================================
 
 createRoot(
