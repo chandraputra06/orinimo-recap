@@ -1,51 +1,54 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import {
+  AnimatePresence,
+  motion,
+  useReducedMotion,
+} from "motion/react";
+
 import Lenis from "lenis";
 import "lenis/dist/lenis.css";
-import { Icon as Iconify } from "@iconify/react";
+
+import { Icon } from "@iconify/react";
 import layoutDashboard from "@iconify-icons/lucide/layout-dashboard";
-import clapperboard from "@iconify-icons/lucide/clapperboard";
 import calendarDays from "@iconify-icons/lucide/calendar-days";
-import sparkles from "@iconify-icons/lucide/sparkles";
+import clapperboard from "@iconify-icons/lucide/clapperboard";
 import bell from "@iconify-icons/lucide/bell";
-import search from "@iconify-icons/lucide/search";
+import settings2 from "@iconify-icons/lucide/settings-2";
 import plus from "@iconify-icons/lucide/plus";
-import arrowUpRight from "@iconify-icons/lucide/arrow-up-right";
-import arrowRight from "@iconify-icons/lucide/arrow-right";
-import chevronRight from "@iconify-icons/lucide/chevron-right";
-import chevronLeft from "@iconify-icons/lucide/chevron-left";
 import download from "@iconify-icons/lucide/download";
 import upload from "@iconify-icons/lucide/upload";
+import search from "@iconify-icons/lucide/search";
 import slidersHorizontal from "@iconify-icons/lucide/sliders-horizontal";
-import ellipsis from "@iconify-icons/lucide/ellipsis";
+import chevronRight from "@iconify-icons/lucide/chevron-right";
+import chevronLeft from "@iconify-icons/lucide/chevron-left";
+import arrowUpRight from "@iconify-icons/lucide/arrow-up-right";
 import check from "@iconify-icons/lucide/check";
 import circleCheck from "@iconify-icons/lucide/circle-check";
 import clock3 from "@iconify-icons/lucide/clock-3";
 import alertCircle from "@iconify-icons/lucide/alert-circle";
+import refreshCw from "@iconify-icons/lucide/refresh-cw";
+import shieldCheck from "@iconify-icons/lucide/shield-check";
 import logOut from "@iconify-icons/lucide/log-out";
 import menu from "@iconify-icons/lucide/menu";
 import x from "@iconify-icons/lucide/x";
-import eye from "@iconify-icons/lucide/eye";
-import eyeOff from "@iconify-icons/lucide/eye-off";
 import pencil from "@iconify-icons/lucide/pencil";
 import trash2 from "@iconify-icons/lucide/trash-2";
+import eye from "@iconify-icons/lucide/eye";
+import eyeOff from "@iconify-icons/lucide/eye-off";
 import copy from "@iconify-icons/lucide/copy";
-import refreshCw from "@iconify-icons/lucide/refresh-cw";
-import shieldCheck from "@iconify-icons/lucide/shield-check";
-import monitor from "@iconify-icons/lucide/monitor";
-import mapPin from "@iconify-icons/lucide/map-pin";
-import mail from "@iconify-icons/lucide/mail";
-import lockKeyhole from "@iconify-icons/lucide/lock-keyhole";
-import fileSpreadsheet from "@iconify-icons/lucide/file-spreadsheet";
 import loaderCircle from "@iconify-icons/lucide/loader-circle";
-import settings2 from "@iconify-icons/lucide/settings-2";
+import fileSpreadsheet from "@iconify-icons/lucide/file-spreadsheet";
 import moon from "@iconify-icons/lucide/moon";
 import sun from "@iconify-icons/lucide/sun";
+import sparkles from "@iconify-icons/lucide/sparkles";
+
 import "@fontsource/poppins/latin-400.css";
 import "@fontsource/poppins/latin-500.css";
 import "@fontsource/poppins/latin-600.css";
 import "@fontsource/poppins/latin-700.css";
+
 import {
   kinds,
   names,
@@ -54,106 +57,108 @@ import {
   addDays,
   status,
   dueDate,
-  diffDays,
   todayBreakdown,
   cleanRecord,
   uniqueRows,
 } from "../shared/domain.js";
+
 import {
   configured,
-  demoAllowed,
   supabase,
   request,
   startDemo,
 } from "./data.js";
+
 import {
   AppIcon,
   Service,
   NetflixIcon,
   WeekIcon,
   DisneyIcon,
-  WelcomeScreen,
+  CanvaIcon,
 } from "./Visuals.jsx";
-import { success, failure, confirm, toast } from "./dialogs.js";
+
+// MASKOT UI
+import LoginPage from "./components/LoginPage.jsx";
+import LoadingScreen from "./components/LoadingScreen.jsx";
+import WelcomeScreen from "./components/WelcomeScreen.jsx";
+import Mascot from "./components/Mascot.jsx";
+
+// CANVA
+import {
+  CanvaAccountModal,
+  CanvaTable,
+} from "./components/CanvaFeatures.jsx";
+
+import {
+  success,
+  failure,
+  confirm,
+  toast,
+} from "./dialogs.js";
+
 import "./style.css";
-const icon = (iconData) =>
-  function AppIconify({ size = 24, className, ...props }) {
-    return (
-      <Iconify
-        icon={iconData}
-        width={size}
-        height={size}
-        className={className}
-        {...props}
-      />
-    );
-  };
-const LayoutDashboard = icon(layoutDashboard);
-const Clapperboard = icon(clapperboard);
-const CalendarDays = icon(calendarDays);
-const Sparkles = icon(sparkles);
-const Bell = icon(bell);
-const Search = icon(search);
-const Plus = icon(plus);
-const ArrowUpRight = icon(arrowUpRight);
-const ArrowRight = icon(arrowRight);
-const ChevronRight = icon(chevronRight);
-const ChevronLeft = icon(chevronLeft);
-const Download = icon(download);
-const Upload = icon(upload);
-const SlidersHorizontal = icon(slidersHorizontal);
-const MoreHorizontal = icon(ellipsis);
-const Check = icon(check);
-const CheckCircle2 = icon(circleCheck);
-const Clock3 = icon(clock3);
-const AlertCircle = icon(alertCircle);
-const LogOut = icon(logOut);
-const Menu = icon(menu);
-const X = icon(x);
-const Eye = icon(eye);
-const EyeOff = icon(eyeOff);
-const Pencil = icon(pencil);
-const Trash2 = icon(trash2);
-const Copy = icon(copy);
-const RefreshCw = icon(refreshCw);
-const ShieldCheck = icon(shieldCheck);
-const Monitor = icon(monitor);
-const MapPin = icon(mapPin);
-const Mail = icon(mail);
-const LockKeyhole = icon(lockKeyhole);
-const FileSpreadsheet = icon(fileSpreadsheet);
-const LoaderCircle = icon(loaderCircle);
-const Settings2 = icon(settings2);
-function ThemeToggle({ theme, onToggle, className = "" }) {
-  const isDark = theme === "dark";
+
+// ==========================================
+// HELPERS
+// ==========================================
+
+const I = ({ icon, size = 18, ...props }) => (
+  <Icon
+    icon={icon}
+    width={size}
+    height={size}
+    {...props}
+  />
+);
+
+const icons = {
+  netflix: NetflixIcon,
+  week: WeekIcon,
+  disney: DisneyIcon,
+  canva: CanvaIcon,
+};
+
+const labelDate = (
+  date,
+  options = {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  },
+) =>
+  date
+    ? new Intl.DateTimeFormat("id-ID", options).format(
+        new Date(date + "T00:00:00"),
+      )
+    : "Belum diatur";
+
+const identity = (record) =>
+  record.kind === "disney"
+    ? record.profil
+    : record.email;
+
+// ==========================================
+// REUSABLE UI
+// ==========================================
+
+function ThemeToggle({ theme, onToggle }) {
   return (
     <button
       type="button"
-      className={`theme-toggle ${className}`}
+      className="theme-toggle"
       onClick={onToggle}
-      aria-label={`Aktifkan mode ${isDark ? "terang" : "gelap"}`}
-      title={`Mode ${isDark ? "terang" : "gelap"}`}
     >
-      <Iconify icon={isDark ? sun : moon} width={18} height={18} />
-      <span>{isDark ? "Terang" : "Gelap"}</span>
+      <I icon={theme === "dark" ? sun : moon} />
+      {theme === "dark" ? "Terang" : "Gelap"}
     </button>
   );
 }
-const icons = { netflix: NetflixIcon, week: WeekIcon, disney: DisneyIcon };
-const dateLabel = (
-  s,
-  options = { day: "2-digit", month: "short", year: "numeric" },
-) =>
-  s
-    ? new Intl.DateTimeFormat("id-ID", options).format(
-        new Date(s + "T00:00:00"),
-      )
-    : "Belum diatur";
-const identity = (r) => (r.kind === "disney" ? r.profil : r.email);
-function Brand({ large = false }) {
+
+function Brand() {
   return (
-    <div className={"brand " + (large ? "large" : "")}>
-      <AppIcon alt="Logo Orinimo" />
+    <div className="brand">
+      <AppIcon alt="Orinimo" />
       <div>
         <strong>
           orinimo<span>.</span>
@@ -163,122 +168,204 @@ function Brand({ large = false }) {
     </div>
   );
 }
-function Badge({ record, date }) {
-  const s = status(record, date);
+
+function StatusBadge({ record, date }) {
+  const current = status(record, date);
+
   return (
-    <span className={"badge " + s.tone}>
+    <span className={`badge ${current.tone}`}>
       <i />
-      {s.label}
+      {current.label}
     </span>
   );
 }
+
+function Empty({
+  title = "Tidak ada akun ditemukan",
+  text = "Coba ubah pencarian atau tambahkan akun.",
+}) {
+  return (
+    <div className="empty-state">
+      <Mascot
+        variant="calm"
+        size={96}
+        decorative
+        className="mx-auto mb-3"
+      />
+      <h3>{title}</h3>
+      <p>{text}</p>
+    </div>
+  );
+}
+
+// ==========================================
+// MAIN APP
+// ==========================================
+
 function App() {
-  const prefersReducedMotion = useReducedMotion();
-  const lenisRef = useRef(null);
+  const reduceMotion = useReducedMotion();
+  const lenis = useRef(null);
+
   const [theme, setTheme] = useState(() => {
     try {
-      const savedTheme = localStorage.getItem("orinimo-theme");
-      if (savedTheme === "light" || savedTheme === "dark") return savedTheme;
-      return window.matchMedia("(prefers-color-scheme: dark)").matches
+      const saved = localStorage.getItem("orinimo-theme");
+
+      if (["light", "dark"].includes(saved)) {
+        return saved;
+      }
+
+      return window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      ).matches
         ? "dark"
         : "light";
-    } catch (error) {
-      console.error("Preferensi tema tidak dapat dibaca.", error);
+    } catch {
       return "light";
     }
   });
-  const [welcomeUser, setWelcomeUser] = useState(null);
+
+  const [session, setSession] = useState(null);
+  const [demo, setDemo] = useState(false);
+  const [authReady, setAuthReady] = useState(!configured);
+  const [boot, setBoot] = useState(true);
   const [signingIn, setSigningIn] = useState(false);
-  const [session, setSession] = useState(null),
-    [demo, setDemo] = useState(false),
-    [authReady, setAuthReady] = useState(!configured),
-    [boot, setBoot] = useState(true);
+  const [welcomeUser, setWelcomeUser] = useState(null);
+
+  const toggleTheme = () => {
+    setTheme((current) =>
+      current === "dark" ? "light" : "dark",
+    );
+  };
+
+  // THEME
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     document.documentElement.style.colorScheme = theme;
-  }, [theme]);
-  useEffect(() => {
+
     try {
       localStorage.setItem("orinimo-theme", theme);
-    } catch (error) {
-      console.error("Preferensi tema tidak dapat disimpan.", error);
+    } catch {
+      // Storage mungkin tidak tersedia.
     }
   }, [theme]);
-  const toggleTheme = () =>
-    setTheme((current) => (current === "dark" ? "light" : "dark"));
-  useEffect(() => {
-    if (prefersReducedMotion) return undefined;
 
-    const lenis = new Lenis({
+  // SMOOTH SCROLL
+  useEffect(() => {
+    if (reduceMotion) return;
+
+    const smooth = new Lenis({
       autoRaf: true,
       lerp: 0.12,
       smoothWheel: true,
     });
-    lenisRef.current = lenis;
+
+    lenis.current = smooth;
 
     return () => {
-      lenis.destroy();
-      lenisRef.current = null;
+      smooth.destroy();
+      lenis.current = null;
     };
-  }, [prefersReducedMotion]);
-  const scrollToTop = () => {
-    if (lenisRef.current) {
-      lenisRef.current.scrollTo(0, { duration: 0.65 });
-      return;
-    }
-    window.scrollTo({
-      top: 0,
-      behavior: prefersReducedMotion ? "auto" : "smooth",
-    });
-  };
+  }, [reduceMotion]);
+
+  // SUPABASE AUTH
   useEffect(() => {
-    const t = setTimeout(() => setBoot(false), 700);
-    let subscription;
-    if (supabase) {
-      supabase.auth.getSession().then(({ data }) => {
-        setSession(data.session);
+    let live = true;
+
+    const timer = setTimeout(() => {
+      if (live) setBoot(false);
+    }, 700);
+
+    if (!supabase) {
+      return () => {
+        live = false;
+        clearTimeout(timer);
+      };
+    }
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(
+      (_event, nextSession) => {
+        if (!live) return;
+
+        setSession(nextSession);
+        setAuthReady(true);
+      },
+    );
+
+    supabase.auth
+      .getSession()
+      .then(({ data, error }) => {
+        if (!live) return;
+
+        if (error) {
+          console.error("Gagal membaca sesi", error);
+        }
+
+        setSession(data?.session ?? null);
+        setAuthReady(true);
+      })
+      .catch((error) => {
+        if (!live) return;
+
+        console.error(error);
         setAuthReady(true);
       });
-      subscription = supabase.auth.onAuthStateChange((_e, s) => {
-        setSession(s);
-        setAuthReady(true);
-      }).data.subscription;
-    }
+
     return () => {
-      clearTimeout(t);
-      subscription?.unsubscribe();
+      live = false;
+      clearTimeout(timer);
+      subscription.unsubscribe();
     };
   }, []);
-  if (boot || !authReady)
-    return (
-      <div className="loading-screen">
-        <ThemeToggle
-          theme={theme}
-          onToggle={toggleTheme}
-          className="loading-theme-toggle"
-        />
-        <Brand large />
-        <div className="loading-bar">
-          <i />
-        </div>
-        <p>Menyiapkan ruang kerjamu</p>
-      </div>
-    );
-  const isWelcome = welcomeUser && session?.user.id === welcomeUser.id;
-  const isWorkspace = (session && !signingIn) || demo;
-  const screenKey = isWelcome
+
+  // Semua React Hooks berada sebelum return kondisional.
+  const welcome = Boolean(
+    welcomeUser &&
+    session?.user?.id === welcomeUser.id,
+  );
+
+  const workspace = Boolean(
+    demo || (session && !signingIn),
+  );
+
+  const screenKey = welcome
     ? "welcome"
-    : isWorkspace
+    : workspace
       ? `workspace-${demo ? "demo" : session.user.id}`
       : "login";
-  const screen = isWelcome ? (
+
+  const scrollToTop = () => {
+    if (lenis.current) {
+      lenis.current.scrollTo(0, {
+        duration: 0.65,
+      });
+    } else {
+      window.scrollTo({
+        top: 0,
+        behavior: reduceMotion ? "auto" : "smooth",
+      });
+    }
+  };
+
+  if (boot || !authReady) {
+    return (
+      <LoadingScreen
+        theme={theme}
+        onThemeToggle={toggleTheme}
+        text="Menyiapkan ruang kerjamu..."
+      />
+    );
+  }
+
+  const screen = welcome ? (
     <WelcomeScreen
       user={welcomeUser}
       onComplete={() => setWelcomeUser(null)}
       theme={theme}
       onThemeToggle={toggleTheme}
     />
-  ) : isWorkspace ? (
+  ) : workspace ? (
     <Workspace
       key={demo ? "demo" : session.user.id}
       demo={demo}
@@ -288,17 +375,21 @@ function App() {
       scrollToTop={scrollToTop}
       onLogout={async () => {
         setWelcomeUser(null);
+
         if (demo) {
           setDemo(false);
           return;
         }
+
         const { error } = await supabase.auth.signOut();
+
         if (error) throw error;
+
         setSession(null);
       }}
     />
   ) : (
-    <Login
+    <LoginPage
       theme={theme}
       onThemeToggle={toggleTheme}
       onLoginStart={() => setSigningIn(true)}
@@ -320,12 +411,17 @@ function App() {
       <motion.div
         key={screenKey}
         className="screen-transition"
-        initial={prefersReducedMotion ? false : { opacity: 0 }}
+        initial={
+          reduceMotion
+            ? false
+            : { opacity: 0 }
+        }
         animate={{ opacity: 1 }}
-        exit={{ opacity: prefersReducedMotion ? 1 : 0 }}
+        exit={{
+          opacity: reduceMotion ? 1 : 0,
+        }}
         transition={{
-          duration: prefersReducedMotion ? 0 : 0.22,
-          ease: "easeInOut",
+          duration: reduceMotion ? 0 : 0.22,
         }}
       >
         {screen}
@@ -333,224 +429,40 @@ function App() {
     </AnimatePresence>
   );
 }
-function Login({
-  onDemo,
-  onLoginStart,
-  onSuccess,
-  onLoginEnd,
-  theme,
-  onThemeToggle,
-}) {
-  const [busy, setBusy] = useState(false),
-    [visible, setVisible] = useState(false);
-  async function login(e) {
-    e.preventDefault();
-    if (busy || !configured || !supabase) return;
-    setBusy(true);
-    onLoginStart();
-    try {
-      const f = new FormData(e.target);
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: f.get("email"),
-        password: f.get("password"),
-      });
-      if (error)
-        throw new Error("Email atau password salah. Silakan periksa kembali.");
-      if (!data.session)
-        throw new Error("Sesi login tidak tersedia. Silakan coba lagi.");
-      onSuccess(data.session);
-    } catch (e) {
-      await failure(e);
-    } finally {
-      setBusy(false);
-      onLoginEnd();
-    }
-  }
-  return (
-    <div className="login">
-      <ThemeToggle
-        theme={theme}
-        onToggle={onThemeToggle}
-        className="login-theme-toggle"
-      />
-      <section className="login-story">
-        <Brand large />
-        <div className="story-body">
-          <span className="eyebrow">A LITTLE MORE ORGANIZED.</span>
-          <h1>
-            Semua akun.
-            <br />
-            Satu ruang
-            <br />
-            <em>yang teratur.</em>
-          </h1>
-          <p>
-            Kelola langganan, pantau masa aktif, dan jangan lewatkan jadwal
-            reset berikutnya.
-          </p>
-          <div className="story-services">
-            <Service kind="netflix" />
-            <Service kind="week" />
-            <Service kind="disney" />
-            <span>Netflix & Disney+</span>
-          </div>
-        </div>
-        <span className="story-foot">
-          MADE FOR YOUR EVERYDAY WORKFLOW <ArrowUpRight size={18} />
-        </span>
-        <div className="orb orb-one" />
-        <div className="orb orb-two" />
-      </section>
-      <section className="login-form">
-        <div>
-          <span className="eyebrow">WELCOME BACK</span>
-          <h2>Senang melihatmu lagi.</h2>
-          <p>Masuk untuk melanjutkan pengelolaan akunmu.</p>
-          <form onSubmit={login}>
-            <label>
-              Email admin
-              <div className="input-icon">
-                <Mail size={18} />
-                <input
-                  name="email"
-                  type="email"
-                  placeholder="nama@email.com"
-                  autoComplete="username"
-                  required
-                  disabled={!configured}
-                />
-              </div>
-            </label>
-            <label>
-              Password
-              <div className="input-icon">
-                <LockKeyhole size={18} />
-                <input
-                  name="password"
-                  type={visible ? "text" : "password"}
-                  placeholder="Masukkan password"
-                  autoComplete="current-password"
-                  required
-                  disabled={!configured}
-                />
-                <button
-                  type="button"
-                  className="icon-btn"
-                  aria-label={
-                    visible ? "Sembunyikan password" : "Tampilkan password"
-                  }
-                  onClick={() => setVisible(!visible)}
-                >
-                  {visible ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-            </label>
-            <button className="btn primary wide" disabled={!configured || busy}>
-              {busy ? (
-                <LoaderCircle className="spin" size={18} />
-              ) : (
-                <>
-                  Masuk ke workspace <ArrowRight size={18} />
-                </>
-              )}
-            </button>
-          </form>
-          {!configured && (
-            <div className="setup-note">
-              <ShieldCheck size={18} />
-              <span>
-                Workspace belum terhubung. Konfigurasi Supabase diperlukan untuk
-                masuk dengan akun admin.
-              </span>
-            </div>
-          )}
-          {demoAllowed && (
-            <>
-              <div className="divider">
-                <span>lihat dulu tampilannya</span>
-              </div>
-              <button
-                className="btn secondary wide"
-                onClick={onDemo}
-                disabled={busy}
-              >
-                Jelajahi demo interaktif <ArrowUpRight size={17} />
-              </button>
-              <small className="demo-caption">
-                Data contoh • Tidak tersimpan setelah halaman dimuat ulang
-              </small>
-            </>
-          )}
-          <div className="login-foot">
-            <ShieldCheck size={16} /> Akses khusus administrator
-          </div>
-        </div>
-      </section>
-    </div>
-  );
-}
+
+// ==========================================
+// WORKSPACE
+// ==========================================
+
 function Workspace({
   demo,
   session,
-  onLogout,
   theme,
   onThemeToggle,
   scrollToTop,
+  onLogout,
 }) {
-  const prefersReducedMotion = useReducedMotion();
-  const [view, setView] = useState("dashboard"),
-    [rows, setRows] = useState([]),
-    [loading, setLoading] = useState(true),
-    [error, setError] = useState(""),
-    [query, setQuery] = useState(""),
-    [filter, setFilter] = useState("all"),
-    [remKind, setRemKind] = useState("all"),
-    [page, setPage] = useState(1),
-    [modal, setModal] = useState(null),
-    [importOpen, setImportOpen] = useState(false),
-    [mobile, setMobile] = useState(false),
-    [busy, setBusy] = useState(false),
-    [sort, setSort] = useState("newest"),
-    [clock, setClock] = useState(today());
-  const selectedKind = kinds.includes(view) ? view : "netflix";
-  async function reload() {
-    setLoading(true);
-    setError("");
-    try {
-      setRows(await request("/accounts", {}, demo));
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
-  }
-  useEffect(() => {
-    reload();
-    const t = setInterval(() => setClock(today()), 60000);
-    return () => clearInterval(t);
-  }, []);
-  function navigate(v, kind) {
-    scrollToTop();
-    setView(v);
-    setQuery("");
-    setFilter(v === "reminders" ? "today" : "all");
-    setPage(1);
-    setMobile(false);
-    if (kind) setRemKind(kind);
-  }
-  const reminders = useMemo(
-    () =>
-      rows
-        .filter((r) =>
-          ["overdue", "today", "soon"].includes(status(r, clock).key),
-        )
-        .sort((a, b) => dueDate(a).localeCompare(dueDate(b))),
-    [rows, clock],
-  );
-  const totalToday = rows.filter(
-    (r) => status(r, clock).key === "today",
-  ).length;
-  const todaySummary = todayBreakdown(rows, clock);
+  const reduceMotion = useReducedMotion();
+
+  const [view, setView] = useState("dashboard");
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState("all");
+  const [remKind, setRemKind] = useState("all");
+  const [sort, setSort] = useState("newest");
+  const [page, setPage] = useState(1);
+  const [modal, setModal] = useState(null);
+  const [importOpen, setImportOpen] = useState(false);
+  const [mobile, setMobile] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [clock, setClock] = useState(today());
+
+  const selectedKind = kinds.includes(view)
+    ? view
+    : "netflix";
+
   const title =
     view === "dashboard"
       ? "Dashboard"
@@ -558,129 +470,287 @@ function Workspace({
         ? "Pusat reminder"
         : view === "settings"
           ? "Pengaturan"
-          : `Rekapan ${names[view]}`;
+          : `Rekapan ${names[view] || view}`;
+
+  // LOAD RECORDS
+  async function reload() {
+    setLoading(true);
+    setError("");
+
+    try {
+      setRows(await request("/accounts", {}, demo));
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    reload();
+
+    const timer = setInterval(() => {
+      setClock(today());
+    }, 60000);
+
+    return () => clearInterval(timer);
+  }, [demo]);
+
+  useEffect(() => {
+    document.title = `Orinimo | ${title}`;
+  }, [title]);
+
+  const reminders = useMemo(
+    () =>
+      rows
+        .filter((record) =>
+          ["overdue", "today", "soon"].includes(
+            status(record, clock).key,
+          ),
+        )
+        .sort((a, b) =>
+          (dueDate(a) || "").localeCompare(
+            dueDate(b) || "",
+          ),
+        ),
+    [rows, clock],
+  );
+
+  const totalToday = rows.filter(
+    (record) =>
+      status(record, clock).key === "today",
+  ).length;
+
+  const todaySummary = todayBreakdown(rows, clock);
+
+  function navigate(where, kind) {
+    scrollToTop();
+    setView(where);
+    setQuery("");
+    setFilter(where === "reminders" ? "today" : "all");
+    setPage(1);
+    setMobile(false);
+
+    if (kind) setRemKind(kind);
+  }
+
+  // CREATE / UPDATE
   async function save(data, id) {
     setBusy(true);
+
     try {
       const result = await request(
         id ? `/accounts/${id}` : "/accounts",
-        { method: id ? "PUT" : "POST", body: cleanRecord(data) },
+        {
+          method: id ? "PUT" : "POST",
+          body: cleanRecord(data),
+        },
         demo,
       );
-      setRows((prev) =>
-        id ? prev.map((r) => (r.id === id ? result : r)) : [result, ...prev],
+
+      setRows((previous) =>
+        id
+          ? previous.map((record) =>
+              record.id === id ? result : record,
+            )
+          : [result, ...previous],
       );
+
       setModal(null);
+
       await success(
-        id ? "Perubahan tersimpan!" : "Akun berhasil ditambahkan!",
-        `${names[data.kind]} sudah diperbarui. Jadwal reminder otomatis menyesuaikan.`,
+        id
+          ? "Perubahan tersimpan!"
+          : "Akun berhasil ditambahkan!",
+        `${names[data.kind]} sudah diperbarui. Reminder otomatis menyesuaikan.`,
       );
-    } catch (e) {
-      await failure(e);
+    } catch (error) {
+      await failure(error);
     } finally {
       setBusy(false);
     }
   }
-  async function remove(r) {
-    const a = await confirm(
+
+  // DELETE
+  async function remove(record) {
+    const answer = await confirm(
       "Hapus akun ini?",
-      `${identity(r)} akan dihapus dari rekapan dan reminder. Tindakan ini tidak bisa dibatalkan.`,
+      `${identity(record)} akan dihapus dari rekapan dan reminder.`,
       "Ya, hapus akun",
     );
-    if (!a.isConfirmed) return;
+
+    if (!answer.isConfirmed) return;
+
     try {
-      await request(`/accounts/${r.id}`, { method: "DELETE" }, demo);
-      setRows((prev) => prev.filter((x) => x.id !== r.id));
+      await request(
+        `/accounts/${record.id}`,
+        { method: "DELETE" },
+        demo,
+      );
+
+      setRows((previous) =>
+        previous.filter(
+          (item) => item.id !== record.id,
+        ),
+      );
+
       await success(
         "Akun berhasil dihapus",
-        "Rekapan dan reminder sudah diperbarui.",
+        "Rekapan dan reminder telah diperbarui.",
       );
-    } catch (e) {
-      await failure(e);
+    } catch (error) {
+      await failure(error);
     }
   }
+
+  // EXPORT EXCEL
   async function exportRows(kind, template = false) {
     try {
-      if (!template && kind !== "disney") {
-        const a = await confirm(
+      // Canva dan Disney tidak memiliki password akun.
+      if (
+        !template &&
+        ["netflix", "week"].includes(kind)
+      ) {
+        const answer = await confirm(
           "Ekspor data akun?",
-          "File Excel akan memuat email dan password akun. Simpan file di tempat yang aman.",
+          "Excel memuat password. Simpan file dengan aman.",
           "Ekspor Excel",
         );
-        if (!a.isConfirmed) return;
+
+        if (!answer.isConfirmed) return;
       }
-      const { writeWorkbook } = await import("../shared/excel.js");
-      const list = rows.filter((r) => r.kind === kind);
-      const bytes = await writeWorkbook(list, kind, template);
+
+      const { writeWorkbook } = await import(
+        "../shared/excel.js"
+      );
+
+      const bytes = await writeWorkbook(
+        rows.filter((record) => record.kind === kind),
+        kind,
+        template,
+      );
+
       const url = URL.createObjectURL(
         new Blob([bytes], {
           type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         }),
       );
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${template ? "template-" : ""}rekapan-${kind}-${today()}.xlsx`;
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-      toast(template ? "Template siap diunduh" : "Excel siap diunduh");
-    } catch (e) {
-      await failure(e);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download =
+        `${template ? "template-" : ""}rekapan-${kind}-${today()}.xlsx`;
+
+      link.click();
+
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+      }, 1000);
+
+      toast(
+        template
+          ? "Template siap diunduh"
+          : "Excel siap diunduh",
+      );
+    } catch (error) {
+      await failure(error);
     }
   }
+
+  // LOGOUT
   async function logout() {
-    const a = await confirm(
+    const answer = await confirm(
       "Keluar dari workspace?",
       demo
-        ? "Perubahan pada data demo akan hilang."
+        ? "Perubahan data demo akan hilang."
         : "Sesi admin akan diakhiri.",
       "Keluar",
     );
-    if (a.isConfirmed)
-      try {
-        await onLogout();
-      } catch (e) {
-        failure(e);
-      }
+
+    if (!answer.isConfirmed) return;
+
+    try {
+      await onLogout();
+    } catch (error) {
+      await failure(error);
+    }
   }
-  const nav = (v, label, Icon, count) => (
+
+  // FILTER & SORT
+  const listing = rows
+    .filter((record) =>
+      view === "reminders"
+        ? (remKind === "all" ||
+            record.kind === remKind) &&
+          ["overdue", "today", "soon"].includes(
+            status(record, clock).key,
+          )
+        : record.kind === view,
+    )
+    .filter(
+      (record) =>
+        (filter === "all" ||
+          status(record, clock).key === filter) &&
+        [
+          record.email,
+          record.profil,
+          record.nomor,
+          record.device,
+          record.lokasi,
+          record.tipe_sharing,
+          record.deskripsi,
+        ].some((value) =>
+          String(value ?? "")
+            .toLowerCase()
+            .includes(query.toLowerCase()),
+        ),
+    )
+    .sort((a, b) =>
+      sort === "due"
+        ? (dueDate(a) || "9999").localeCompare(
+            dueDate(b) || "9999",
+          )
+        : sort === "name"
+          ? String(identity(a) || "").localeCompare(
+              String(identity(b) || ""),
+            )
+          : String(b.created_at || "").localeCompare(
+              String(a.created_at || ""),
+            ),
+    );
+
+  const pages = Math.max(
+    1,
+    Math.ceil(listing.length / 8),
+  );
+
+  const safePage = Math.min(page, pages);
+
+  const pageRows = listing.slice(
+    (safePage - 1) * 8,
+    safePage * 8,
+  );
+
+  const nav = (
+    key,
+    label,
+    IconComponent,
+    count = 0,
+  ) => (
     <button
-      className={"nav-link " + (view === v ? "active" : "")}
-      onClick={() => navigate(v)}
+      key={key}
+      type="button"
+      className={`nav-link ${view === key ? "active" : ""}`}
+      onClick={() => navigate(key)}
     >
-      <Icon size={kinds.includes(v) ? 28 : 19} />
+      <IconComponent
+        size={kinds.includes(key) ? 28 : 19}
+      />
       <span>{label}</span>
       {count > 0 && <b>{count}</b>}
     </button>
   );
-  let listing = rows
-    .filter((r) =>
-      view === "reminders"
-        ? (remKind === "all" || r.kind === remKind) &&
-          ["overdue", "today", "soon"].includes(status(r, clock).key)
-        : r.kind === view,
-    )
-    .filter(
-      (r) =>
-        (filter === "all" || status(r, clock).key === filter) &&
-        [
-          r.email,
-          r.profil,
-          r.nomor,
-          r.device,
-          r.lokasi,
-          r.tipe_sharing,
-          r.deskripsi,
-        ].some((s) => s?.toLowerCase().includes(query.toLowerCase())),
-    );
-  listing.sort((a, b) =>
-    sort === "due"
-      ? (dueDate(a) || "9999").localeCompare(dueDate(b) || "9999")
-      : sort === "name"
-        ? identity(a).localeCompare(identity(b))
-        : b.created_at.localeCompare(a.created_at),
-  );
-  const pages = Math.max(1, Math.ceil(listing.length / 8)),
-    safePage = Math.min(page, pages);
+
   return (
     <div className="app-shell">
       {mobile && (
@@ -690,32 +760,62 @@ function Workspace({
           onClick={() => setMobile(false)}
         />
       )}
-      <aside className={"sidebar " + (mobile ? "open" : "")}>
+
+      {/* SIDEBAR */}
+      <aside className={`sidebar ${mobile ? "open" : ""}`}>
         <Brand />
+
         <span className="nav-label">WORKSPACE</span>
+
         <nav>
-          {nav("dashboard", "Dashboard", LayoutDashboard)}
-          <span className="nav-label inner">KELOLA AKUN</span>
+          {nav(
+            "dashboard",
+            "Dashboard",
+            () => <I icon={layoutDashboard} />,
+          )}
+
+          <span className="nav-label inner">
+            KELOLA AKUN
+          </span>
+
           {nav("netflix", "Netflix", NetflixIcon)}
           {nav("week", "Netflix 1 Week", WeekIcon)}
           {nav("disney", "Disney+", DisneyIcon)}
-          <span className="nav-label inner">MONITORING</span>
-          {nav("reminders", "Reminder", Bell, reminders.length)}
-          {nav("settings", "Pengaturan", Settings2)}
+          {nav("canva", "Canva", CanvaIcon)}
+
+          <span className="nav-label inner">
+            MONITORING
+          </span>
+
+          {nav(
+            "reminders",
+            "Reminder",
+            () => <I icon={bell} />,
+            reminders.length,
+          )}
+
+          {nav(
+            "settings",
+            "Pengaturan",
+            () => <I icon={settings2} />,
+          )}
         </nav>
+
         <div className="sidebar-bottom">
-          <button
-            className="user-card"
-            onClick={logout}
-            title="Keluar dari workspace"
-          >
+          <button className="user-card" onClick={logout}>
             <span className="user-avatar">
-              {demo ? "D" : (session?.user.email || "A")[0].toUpperCase()}
+              {demo
+                ? "D"
+                : (session?.user.email || "A")[0].toUpperCase()}
             </span>
+
             <span>
               <strong>
-                {demo ? "Demo Admin" : session?.user.email?.split("@")[0]}
+                {demo
+                  ? "Demo Admin"
+                  : session?.user.email?.split("@")[0]}
               </strong>
+
               <small>
                 {demo
                   ? "Mode demo"
@@ -724,27 +824,37 @@ function Workspace({
                     : "Pengguna"}
               </small>
             </span>
-            <LogOut size={17} />
+
+            <I icon={logOut} />
           </button>
         </div>
       </aside>
+
+      {/* MAIN */}
       <div className="main-shell">
         <header className="topbar">
           <div>
             <button
               className="icon-btn mobile-menu"
-              aria-label="Buka menu"
               onClick={() => setMobile(true)}
+              aria-label="Buka menu"
             >
-              <Menu size={22} />
+              <I icon={menu} size={22} />
             </button>
+
             <span className="breadcrumb">
-              Workspace <ChevronRight size={14} />
+              Workspace
+              <I icon={chevronRight} size={14} />
               <strong>{title}</strong>
             </span>
           </div>
+
           <div className="topbar-right">
-            <ThemeToggle theme={theme} onToggle={onThemeToggle} />
+            <ThemeToggle
+              theme={theme}
+              onToggle={onThemeToggle}
+            />
+
             {demo ? (
               <span className="demo-pill">Mode demo</span>
             ) : (
@@ -752,35 +862,43 @@ function Workspace({
                 <i /> Workspace aktif
               </span>
             )}
+
             <button
               className="icon-btn notification"
-              aria-label="Buka reminder"
+              aria-label="Lihat reminder"
               onClick={() => navigate("reminders")}
             >
-              <Bell size={20} />
+              <I icon={bell} size={20} />
               {reminders.length > 0 && <i />}
             </button>
+
             <span className="top-avatar">
-              {demo ? "D" : (session?.user.email || "A")[0].toUpperCase()}
+              {demo
+                ? "D"
+                : (session?.user.email || "A")[0].toUpperCase()}
             </span>
           </div>
         </header>
+
         <AnimatePresence mode="wait" initial={false}>
           <motion.main
             key={view}
             className="main-content"
-            initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={
-              prefersReducedMotion
-                ? { opacity: 1, y: 0 }
-                : { opacity: 0, y: -5 }
+            initial={
+              reduceMotion
+                ? false
+                : { opacity: 0, y: 10 }
             }
+            animate={{ opacity: 1, y: 0 }}
+            exit={{
+              opacity: reduceMotion ? 1 : 0,
+              y: reduceMotion ? 0 : -5,
+            }}
             transition={{
-              duration: prefersReducedMotion ? 0 : 0.28,
-              ease: [0.22, 1, 0.36, 1],
+              duration: reduceMotion ? 0 : 0.28,
             }}
           >
+            {/* HEADING */}
             <div className="page-heading">
               <div>
                 <span className="eyebrow">
@@ -790,25 +908,28 @@ function Workspace({
                       ? "STAY ONE STEP AHEAD"
                       : "ACCOUNT MANAGEMENT"}
                 </span>
+
                 <h1>
                   {view === "dashboard" ? "Overview" : title}
                   <span className="heading-dot">.</span>
                 </h1>
+
                 <p>
                   {view === "dashboard"
                     ? "Selamat datang kembali. Semua akunmu, dalam kendali."
                     : view === "reminders"
                       ? "Satu tempat untuk semua jadwal reset dan masa aktif."
                       : view === "settings"
-                        ? "Informasi workspace dan preferensi pengelolaan akun."
-                        : `Kelola, pantau, dan perbarui akun ${names[view]} dengan mudah.`}
+                        ? "Preferensi dan informasi workspace."
+                        : `Kelola dan perbarui akun ${names[view]} dengan mudah.`}
                 </p>
               </div>
+
               <div className="heading-actions">
                 {view === "dashboard" ? (
                   <span className="date-chip">
-                    <CalendarDays size={16} />
-                    {dateLabel(clock, {
+                    <I icon={calendarDays} />
+                    {labelDate(clock, {
                       weekday: "short",
                       day: "numeric",
                       month: "long",
@@ -819,27 +940,43 @@ function Workspace({
                   <>
                     <button
                       className="btn secondary"
-                      onClick={() => exportRows(selectedKind)}
+                      onClick={() =>
+                        exportRows(selectedKind)
+                      }
                     >
-                      <Download size={16} /> Ekspor Excel
+                      <I icon={download} />
+                      Ekspor Excel
                     </button>
+
                     <button
                       className="btn primary"
-                      onClick={() => setModal({ kind: selectedKind })}
+                      onClick={() =>
+                        setModal({
+                          kind: selectedKind,
+                        })
+                      }
                     >
-                      <Plus size={18} /> Tambah akun
+                      <I icon={plus} />
+                      Tambah akun
                     </button>
                   </>
                 ) : null}
               </div>
             </div>
+
+            {/* BODY */}
             {error ? (
               <div className="error-state">
-                <AlertCircle />
+                <I icon={alertCircle} size={28} />
                 <h3>Data belum dapat dimuat</h3>
                 <p>{error}</p>
-                <button className="btn primary" onClick={reload}>
-                  <RefreshCw size={17} /> Coba lagi
+
+                <button
+                  className="btn primary"
+                  onClick={reload}
+                >
+                  <I icon={refreshCw} />
+                  Coba lagi
                 </button>
               </div>
             ) : loading ? (
@@ -849,271 +986,374 @@ function Workspace({
                 ))}
                 <div className="skeleton full" />
               </div>
+            ) : view === "dashboard" ? (
+              <Dashboard
+                rows={rows}
+                reminders={reminders}
+                totalToday={totalToday}
+                date={clock}
+                navigate={navigate}
+                setModal={setModal}
+              />
+            ) : view === "settings" ? (
+              <Settings
+                demo={demo}
+                email={session?.user.email}
+                theme={theme}
+                onThemeToggle={onThemeToggle}
+              />
             ) : (
               <>
-                {view === "dashboard" ? (
-                  <Dashboard
-                    rows={rows}
-                    reminders={reminders}
-                    totalToday={totalToday}
-                    date={clock}
-                    navigate={navigate}
-                    setModal={setModal}
-                  />
-                ) : view === "settings" ? (
-                  <Settings
-                    demo={demo}
-                    email={session?.user.email}
-                    theme={theme}
-                    onThemeToggle={onThemeToggle}
-                  />
-                ) : (
+                {kinds.includes(view) && (
+                  <div className="mini-stats">
+                    <div>
+                      <span>Total akun</span>
+                      <strong>
+                        {
+                          rows.filter(
+                            (r) => r.kind === view,
+                          ).length
+                        }
+                        <small>akun</small>
+                      </strong>
+                    </div>
+
+                    <div>
+                      <span>Aktif</span>
+                      <strong className="green-text">
+                        {
+                          rows.filter(
+                            (r) =>
+                              r.kind === view &&
+                              status(r, clock).key === "active",
+                          ).length
+                        }
+                        <small>akun</small>
+                      </strong>
+                    </div>
+
+                    <div>
+                      <span>Perlu perhatian</span>
+                      <strong className="brand-text">
+                        {
+                          reminders.filter(
+                            (r) => r.kind === view,
+                          ).length
+                        }
+                        <small>akun</small>
+                      </strong>
+                    </div>
+                  </div>
+                )}
+
+                {/* REMINDERS */}
+                {view === "reminders" && (
                   <>
-                    {kinds.includes(view) && (
-                      <div className="mini-stats">
-                        <div>
-                          <span>Total akun</span>
-                          <strong>
-                            {rows.filter((r) => r.kind === view).length}
-                            <small>akun</small>
-                          </strong>
-                        </div>
-                        <div>
-                          <span>Aktif</span>
-                          <strong className="green-text">
+                    <div className="reminder-intro">
+                      <span className="reminder-symbol">
+                        <I icon={bell} size={24} />
+                      </span>
+
+                      <div>
+                        <h3>
+                          {totalToday
+                            ? `${totalToday} akun perlu ditangani hari ini`
+                            : "Pantau jadwal berikutnya"}
+                        </h3>
+
+                        <p>
+                          Netflix, Disney+ & Canva: H−3 ·
+                          Netflix mingguan: H−2 · Zona waktu WITA
+                        </p>
+
+                        {!!todaySummary.length && (
+                          <ul className="reminder-breakdown">
+                            {todaySummary.map((item) => (
+                              <li
+                                key={`${item.kind}:${item.sharing}`}
+                              >
+                                <span
+                                  className={`breakdown-dot ${item.kind}`}
+                                />
+                                <strong>
+                                  {item.count} akun
+                                </strong>
+                                <span>
+                                  {item.kind === "netflix"
+                                    ? `Netflix · ${item.sharing}`
+                                    : names[item.kind]}
+                                </span>
+                                <span>
+                                  jatuh tempo hari ini
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="tabs service-tabs">
+                      {["all", ...kinds].map((kind) => (
+                        <button
+                          key={kind}
+                          className={
+                            remKind === kind ? "selected" : ""
+                          }
+                          onClick={() => {
+                            setRemKind(kind);
+                            setPage(1);
+                          }}
+                        >
+                          {kind === "all"
+                            ? "Semua layanan"
+                            : names[kind]}
+                          <span>
                             {
-                              rows.filter(
-                                (r) =>
-                                  r.kind === view &&
-                                  status(r, clock).key === "active",
+                              reminders.filter(
+                                (record) =>
+                                  kind === "all" ||
+                                  record.kind === kind,
                               ).length
                             }
-                            <small>akun</small>
-                          </strong>
-                        </div>
-                        <div>
-                          <span>Perlu perhatian</span>
-                          <strong className="brand-text">
-                            {reminders.filter((r) => r.kind === view).length}
-                            <small>akun</small>
-                          </strong>
-                        </div>
-                      </div>
-                    )}
-                    {view === "reminders" && (
-                      <>
-                        <div className="reminder-intro">
-                          <span className="reminder-symbol">
-                            <Bell size={24} />
                           </span>
-                          <div>
-                            <h3>
-                              {totalToday
-                                ? `${totalToday} akun perlu ditangani hari ini`
-                                : "Pantau jadwal berikutnya"}
-                            </h3>
-                            <p>
-                              Netflix & Disney: H−3 · Netflix mingguan: H−2 ·
-                              Zona waktu WITA
-                            </p>
-                            {todaySummary.length > 0 && (
-                              <ul className="reminder-breakdown">
-                                {todaySummary.map((item) => (
-                                  <li key={`${item.kind}:${item.sharing}`}>
-                                    <span
-                                      className={`breakdown-dot ${item.kind}`}
-                                    />
-                                    <strong>{item.count} akun</strong>
-                                    <span>
-                                      {item.kind === "netflix"
-                                        ? `Netflix · ${item.sharing}`
-                                        : names[item.kind]}
-                                    </span>
-                                    <span>reset hari ini</span>
-                                  </li>
-                                ))}
-                              </ul>
-                            )}
-                          </div>
-                        </div>
-                        <div className="tabs service-tabs">
-                          {["all", ...kinds].map((k) => (
-                            <button
-                              className={remKind === k ? "selected" : ""}
-                              key={k}
-                              onClick={() => {
-                                setRemKind(k);
-                                setPage(1);
-                              }}
-                            >
-                              {k === "all" ? "Semua layanan" : names[k]}
-                              <span>
-                                {
-                                  reminders.filter(
-                                    (r) => k === "all" || r.kind === k,
-                                  ).length
-                                }
-                              </span>
-                            </button>
-                          ))}
-                        </div>
-                      </>
-                    )}
-                    <section className="panel records-panel">
-                      <div className="panel-heading">
-                        <div>
-                          <h2>
-                            {view === "reminders"
-                              ? "Jadwal yang perlu diperhatikan"
-                              : "Daftar akun"}{" "}
-                            <span className="count-tag">{listing.length}</span>
-                          </h2>
-                          <p>
-                            {view === "disney"
-                              ? "Profil, perangkat, lokasi, dan masa aktif Disney+."
-                              : view === "reminders"
-                                ? "Perbarui tanggal untuk menjadwalkan pengingat berikutnya."
-                                : "Semua informasi akun tersimpan di satu tempat."}
-                          </p>
-                        </div>
-                        {kinds.includes(view) && (
-                          <button
-                            className="btn secondary small"
-                            onClick={() => setImportOpen(true)}
-                          >
-                            <Upload size={15} /> Impor Excel
-                          </button>
-                        )}
-                      </div>
-                      <div className="table-toolbar">
-                        <div className="search-field">
-                          <Search size={18} />
-                          <input
-                            aria-label="Cari akun"
-                            placeholder={
-                              view === "disney"
-                                ? "Cari nomor, profil, atau lokasi…"
-                                : "Cari akun, profil, atau catatan…"
-                            }
-                            value={query}
-                            onChange={(e) => {
-                              setQuery(e.target.value);
-                              setPage(1);
-                            }}
-                          />
-                          {query && (
-                            <button
-                              className="icon-btn"
-                              aria-label="Hapus pencarian"
-                              onClick={() => setQuery("")}
-                            >
-                              <X size={14} />
-                            </button>
-                          )}
-                        </div>
-                        <div className="toolbar-select">
-                          <SlidersHorizontal size={15} />
-                          <select
-                            aria-label="Filter status"
-                            value={filter}
-                            onChange={(e) => {
-                              setFilter(e.target.value);
-                              setPage(1);
-                            }}
-                          >
-                            <option value="all">Semua status</option>
-                            <option value="today">Hari ini</option>
-                            <option value="soon">Segera</option>
-                            <option value="overdue">Terlewat</option>
-                            {view !== "reminders" && (
-                              <>
-                                <option value="active">Aktif</option>
-                                <option value="unset">Belum diatur</option>
-                              </>
-                            )}
-                          </select>
-                        </div>
-                        <select
-                          className="sort-select"
-                          aria-label="Urutkan akun"
-                          value={sort}
-                          onChange={(e) => setSort(e.target.value)}
-                        >
-                          <option value="newest">Terbaru</option>
-                          <option value="due">Tanggal terdekat</option>
-                          <option value="name">Nama A–Z</option>
-                        </select>
-                      </div>
-                      <AccountTable
-                        records={listing.slice(
-                          (safePage - 1) * 8,
-                          safePage * 8,
-                        )}
-                        view={view}
-                        date={clock}
-                        offset={(safePage - 1) * 8}
-                        onEdit={(r) => setModal(r)}
-                        onDelete={remove}
-                      />
-                      <div className="pagination">
-                        <span>
-                          Menampilkan{" "}
-                          <b>
-                            {listing.length ? (safePage - 1) * 8 + 1 : 0}–
-                            {Math.min(safePage * 8, listing.length)}
-                          </b>{" "}
-                          dari <b>{listing.length}</b> akun
-                        </span>
-                        <div>
-                          <button
-                            className="icon-btn"
-                            aria-label="Halaman sebelumnya"
-                            disabled={safePage === 1}
-                            onClick={() => setPage(safePage - 1)}
-                          >
-                            <ChevronLeft size={17} />
-                          </button>
-                          <span className="page-current">{safePage}</span>
-                          <span className="page-of">/ {pages}</span>
-                          <button
-                            className="icon-btn"
-                            aria-label="Halaman berikutnya"
-                            disabled={safePage === pages}
-                            onClick={() => setPage(safePage + 1)}
-                          >
-                            <ChevronRight size={17} />
-                          </button>
-                        </div>
-                      </div>
-                    </section>
+                        </button>
+                      ))}
+                    </div>
                   </>
                 )}
+
+                {/* TABLE PANEL */}
+                <section className="panel records-panel">
+                  <div className="panel-heading">
+                    <div>
+                      <h2>
+                        {view === "reminders"
+                          ? "Jadwal yang perlu diperhatikan"
+                          : "Daftar akun"}
+                        {" "}
+                        <span className="count-tag">
+                          {listing.length}
+                        </span>
+                      </h2>
+
+                      <p>
+                        {view === "canva"
+                          ? "Email, tanggal pembelian, masa aktif, dan akses Designer Canva."
+                          : view === "reminders"
+                            ? "Perbarui tanggal untuk menjadwalkan pengingat berikutnya."
+                            : "Semua informasi akun tersimpan di satu tempat."}
+                      </p>
+                    </div>
+
+                    {kinds.includes(view) && (
+                      <button
+                        className="btn secondary small"
+                        onClick={() => setImportOpen(true)}
+                      >
+                        <I icon={upload} size={15} />
+                        Impor Excel
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="table-toolbar">
+                    <div className="search-field">
+                      <I icon={search} />
+
+                      <input
+                        aria-label="Cari akun"
+                        value={query}
+                        placeholder="Cari akun, profil, atau catatan…"
+                        onChange={(event) => {
+                          setQuery(event.target.value);
+                          setPage(1);
+                        }}
+                      />
+
+                      {query && (
+                        <button
+                          className="icon-btn"
+                          onClick={() => setQuery("")}
+                          aria-label="Hapus pencarian"
+                        >
+                          <I icon={x} size={14} />
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="toolbar-select">
+                      <I
+                        icon={slidersHorizontal}
+                        size={15}
+                      />
+
+                      <select
+                        aria-label="Filter status"
+                        value={filter}
+                        onChange={(event) => {
+                          setFilter(event.target.value);
+                          setPage(1);
+                        }}
+                      >
+                        <option value="all">
+                          Semua status
+                        </option>
+                        <option value="today">
+                          Hari ini
+                        </option>
+                        <option value="soon">
+                          Segera
+                        </option>
+                        <option value="overdue">
+                          Terlewat
+                        </option>
+
+                        {view !== "reminders" && (
+                          <>
+                            <option value="active">
+                              Aktif
+                            </option>
+                            <option value="unset">
+                              Belum diatur
+                            </option>
+                          </>
+                        )}
+                      </select>
+                    </div>
+
+                    <select
+                      aria-label="Urutkan akun"
+                      className="sort-select"
+                      value={sort}
+                      onChange={(event) =>
+                        setSort(event.target.value)
+                      }
+                    >
+                      <option value="newest">
+                        Terbaru
+                      </option>
+                      <option value="due">
+                        Tanggal terdekat
+                      </option>
+                      <option value="name">
+                        Nama A–Z
+                      </option>
+                    </select>
+                  </div>
+
+                  {/* CANVA TABLE / REGULAR TABLE */}
+                  {view === "canva" ? (
+                    <CanvaTable
+                      records={pageRows}
+                      date={clock}
+                      offset={(safePage - 1) * 8}
+                      onEdit={setModal}
+                      onDelete={remove}
+                    />
+                  ) : (
+                    <AccountTable
+                      records={pageRows}
+                      view={view}
+                      date={clock}
+                      offset={(safePage - 1) * 8}
+                      onEdit={setModal}
+                      onDelete={remove}
+                    />
+                  )}
+
+                  <div className="pagination">
+                    <span>
+                      Menampilkan{" "}
+                      <b>
+                        {listing.length
+                          ? (safePage - 1) * 8 + 1
+                          : 0}
+                        –
+                        {Math.min(
+                          safePage * 8,
+                          listing.length,
+                        )}
+                      </b>{" "}
+                      dari <b>{listing.length}</b> akun
+                    </span>
+
+                    <div>
+                      <button
+                        className="icon-btn"
+                        aria-label="Sebelumnya"
+                        disabled={safePage === 1}
+                        onClick={() =>
+                          setPage(safePage - 1)
+                        }
+                      >
+                        <I icon={chevronLeft} />
+                      </button>
+
+                      <span className="page-current">
+                        {safePage}
+                      </span>
+
+                      <span className="page-of">
+                        / {pages}
+                      </span>
+
+                      <button
+                        className="icon-btn"
+                        aria-label="Berikutnya"
+                        disabled={safePage === pages}
+                        onClick={() =>
+                          setPage(safePage + 1)
+                        }
+                      >
+                        <I icon={chevronRight} />
+                      </button>
+                    </div>
+                  </div>
+                </section>
               </>
             )}
+
             <footer className="page-footer">
               <span>
-                © {new Date().getFullYear()} Orinimo
-                <span className="footer-dot">•</span>Made for a simpler
-                workflow.
+                © {new Date().getFullYear()} Orinimo ·
+                Made for a simpler workflow.
               </span>
+
               <span>
-                <ShieldCheck size={13} />
+                <I icon={shieldCheck} size={13} />
                 {demo
-                  ? "Data contoh · tidak tersimpan"
+                  ? "Data demo tidak tersimpan"
                   : "Akses admin terlindungi"}
               </span>
             </footer>
           </motion.main>
         </AnimatePresence>
       </div>
-      {modal && (
-        <AccountModal
-          record={modal}
-          busy={busy}
-          onClose={() => !busy && setModal(null)}
-          onSave={save}
-        />
-      )}
+
+      {/* FORM TAMBAH / EDIT */}
+      {modal &&
+        (modal.kind === "canva" ? (
+          <CanvaAccountModal
+            record={modal}
+            busy={busy}
+            onClose={() =>
+              !busy && setModal(null)
+            }
+            onSave={save}
+          />
+        ) : (
+          <AccountModal
+            record={modal}
+            busy={busy}
+            onClose={() =>
+              !busy && setModal(null)
+            }
+            onSave={save}
+          />
+        ))}
+
+      {/* IMPORT EXCEL */}
       {importOpen && (
         <ImportModal
           kind={selectedKind}
@@ -1124,174 +1364,253 @@ function Workspace({
             setImportOpen(false);
             await reload();
           }}
-          onTemplate={() => exportRows(selectedKind, true)}
+          onTemplate={() =>
+            exportRows(selectedKind, true)
+          }
         />
       )}
     </div>
   );
 }
-function Dashboard({ rows, reminders, totalToday, date, navigate, setModal }) {
-  const active = rows.filter((r) => status(r, date).key === "active").length;
-  const soon = reminders.filter((r) => status(r, date).key === "soon").length;
-  const overdue = reminders.filter(
-    (r) => status(r, date).key === "overdue",
+
+// ==========================================
+// DASHBOARD
+// ==========================================
+
+function Dashboard({
+  rows,
+  reminders,
+  totalToday,
+  date,
+  navigate,
+  setModal,
+}) {
+  const active = rows.filter(
+    (record) =>
+      status(record, date).key === "active",
   ).length;
+
+  const soon = reminders.filter(
+    (record) =>
+      status(record, date).key === "soon",
+  ).length;
+
+  const overdue = reminders.filter(
+    (record) =>
+      status(record, date).key === "overdue",
+  ).length;
+
   const stats = [
-    {
-      label: "Total akun",
-      value: rows.length,
-      sub: "di seluruh layanan",
-      Icon: Clapperboard,
-      tone: "red",
-    },
-    {
-      label: "Akun aktif",
-      value: active,
-      sub: "masa aktif masih aman",
-      Icon: ShieldCheck,
-      tone: "green",
-    },
-    {
-      label: "Jadwal hari ini",
-      value: totalToday,
-      sub: "siap untuk diperbarui",
-      Icon: CalendarDays,
-      tone: "orange",
-    },
-    {
-      label: "Segera berakhir",
-      value: soon,
-      sub: "dalam 2–3 hari ke depan",
-      Icon: Clock3,
-      tone: "purple",
-    },
+    [
+      "Total akun",
+      rows.length,
+      "di seluruh layanan",
+      clapperboard,
+      "red",
+    ],
+    [
+      "Akun aktif",
+      active,
+      "masa aktif masih aman",
+      shieldCheck,
+      "green",
+    ],
+    [
+      "Jadwal hari ini",
+      totalToday,
+      "siap untuk diperbarui",
+      calendarDays,
+      "orange",
+    ],
+    [
+      "Segera berakhir",
+      soon,
+      "dalam 2–3 hari",
+      clock3,
+      "purple",
+    ],
   ];
+
   return (
     <>
       <div className="stats-grid">
-        {stats.map((s, i) => (
-          <div
-            key={s.label}
-            style={{ animationDelay: `${i * 55}ms` }}
-            className="stat-card"
-          >
-            <div className="stat-top">
-              <span>{s.label}</span>
-              <span className={"stat-icon " + s.tone}>
-                <s.Icon size={18} />
-              </span>
+        {stats.map(
+          ([name, value, subtitle, iconData, tone], i) => (
+            <div
+              key={name}
+              className="stat-card"
+              style={{
+                animationDelay: `${i * 55}ms`,
+              }}
+            >
+              <div className="stat-top">
+                <span>{name}</span>
+
+                <span className={`stat-icon ${tone}`}>
+                  <I icon={iconData} />
+                </span>
+              </div>
+
+              <strong>
+                {String(value).padStart(2, "0")}
+              </strong>
+
+              <div className="stat-bottom">
+                <span>{subtitle}</span>
+                <I icon={arrowUpRight} size={15} />
+              </div>
             </div>
-            <strong>{s.value.toString().padStart(2, "0")}</strong>
-            <div className="stat-bottom">
-              <span>{s.sub}</span>
-              <ArrowUpRight size={15} />
-            </div>
-          </div>
-        ))}
+          ),
+        )}
       </div>
+
       <div className="dashboard-middle">
         <section className="welcome-card">
-          <span className="eyebrow">LESS MANAGING. MORE LIVING.</span>
+          <span className="eyebrow">
+            LESS MANAGING. MORE LIVING.
+          </span>
+
           <h2>
             Rapi akunnya.
             <br />
             Tenang harinya.
           </h2>
+
           <p>
             Kelola semua langganan tanpa kehilangan
-            <br className="desktop" /> satu pun jadwal penting.
+            jadwal penting.
           </p>
+
           <button
-            onClick={() => setModal({ kind: "netflix" })}
             className="btn light"
+            onClick={() =>
+              setModal({ kind: "netflix" })
+            }
           >
-            <Plus size={17} /> Tambah akun baru <ArrowUpRight size={17} />
+            <I icon={plus} />
+            Tambah akun baru
+            <I icon={arrowUpRight} />
           </button>
-          <div className="hero-art" aria-hidden="true">
+
+          <div
+            className="hero-art"
+            aria-hidden="true"
+          >
             <div className="orbit orbit-a" />
             <div className="orbit orbit-b" />
+
             <div className="floating-card behind">
-              <CalendarDays size={23} />
+              <I icon={calendarDays} size={23} />
               <div />
               <div />
             </div>
+
             <div className="floating-card front">
               <span className="check-circle">
-                <Check size={27} />
+                <I icon={check} size={27} />
               </span>
+
               <b>All under control.</b>
               <small>A little more organized.</small>
+
               <div className="art-line" />
               <div className="art-line short" />
+
               <div className="art-avatars">
                 <Service kind="netflix" />
                 <Service kind="disney" />
-                <span>
-                  <Check size={12} />
-                </span>
+                <Service kind="canva" />
               </div>
             </div>
-            <Sparkles className="art-spark" size={26} />
+
+            <I
+              icon={sparkles}
+              size={26}
+              className="art-spark"
+            />
           </div>
         </section>
+
         <section className="panel portfolio">
           <div className="panel-heading">
             <h2>Ringkasan layanan</h2>
-            <span className="subtle-icon">
-              <Clapperboard size={18} />
-            </span>
+            <I icon={clapperboard} />
           </div>
-          <p className="portfolio-sub">Semua langganan dalam satu pandangan.</p>
-          {kinds.map((k) => {
-            const count = rows.filter((r) => r.kind === k).length;
-            return (
-              <button
-                className="service-row"
-                key={k}
-                onClick={() => navigate(k)}
-              >
-                <Service kind={k} />
-                <span>
-                  <strong>{names[k]}</strong>
-                  <small>
-                    {k === "netflix"
-                      ? "Akun bulanan"
-                      : k === "week"
-                        ? "Paket mingguan"
-                        : "Profil & perangkat"}
-                  </small>
-                </span>
-                <b>{count}</b>
-                <ChevronRight size={16} />
-              </button>
-            );
-          })}
+
+          <p className="portfolio-sub">
+            Semua langganan dalam satu pandangan.
+          </p>
+
+          {kinds.map((kind) => (
+            <button
+              key={kind}
+              className="service-row"
+              onClick={() => navigate(kind)}
+            >
+              <Service kind={kind} />
+
+              <span>
+                <strong>{names[kind]}</strong>
+
+                <small>
+                  {kind === "netflix"
+                    ? "Akun bulanan"
+                    : kind === "week"
+                      ? "Paket mingguan"
+                      : kind === "disney"
+                        ? "Profil & perangkat"
+                        : "Masa aktif dan Designer"}
+                </small>
+              </span>
+
+              <b>
+                {
+                  rows.filter(
+                    (record) =>
+                      record.kind === kind,
+                  ).length
+                }
+              </b>
+
+              <I icon={chevronRight} size={16} />
+            </button>
+          ))}
+
           <div className="portfolio-total">
             <span>Total seluruh layanan</span>
             <strong>{rows.length} akun</strong>
           </div>
         </section>
       </div>
+
       <div className="dashboard-bottom">
         <section className="panel reminder-panel">
           <div className="panel-heading">
             <div>
               <h2>
                 Perlu perhatian{" "}
-                <span className="count-tag">{reminders.length}</span>
+                <span className="count-tag">
+                  {reminders.length}
+                </span>
               </h2>
-              <p>Jadwal terdekat, jangan sampai terlewat.</p>
+
+              <p>
+                Jadwal terdekat, jangan sampai terlewat.
+              </p>
             </div>
-            <button className="text-btn" onClick={() => navigate("reminders")}>
-              Lihat semua <ArrowUpRight size={15} />
+
+            <button
+              className="text-btn"
+              onClick={() =>
+                navigate("reminders")
+              }
+            >
+              Lihat semua
+              <I icon={arrowUpRight} size={15} />
             </button>
           </div>
-          {reminders.length === 0 ? (
-            <Empty
-              title="Semua jadwal aman"
-              text="Belum ada akun yang mendekati jadwal reset."
-            />
-          ) : (
+
+          {reminders.length ? (
             <div className="dashboard-table-wrap">
               <table className="dashboard-table">
                 <thead>
@@ -1302,34 +1621,49 @@ function Dashboard({ rows, reminders, totalToday, date, navigate, setModal }) {
                     <th />
                   </tr>
                 </thead>
+
                 <tbody>
-                  {reminders.slice(0, 4).map((r) => (
-                    <tr key={r.id}>
+                  {reminders.slice(0, 4).map((record) => (
+                    <tr key={record.id}>
                       <td>
                         <div className="account-cell">
-                          <Service kind={r.kind} />
+                          <Service kind={record.kind} />
+
                           <span>
-                            <strong>{identity(r)}</strong>
-                            <small>{names[r.kind]}</small>
+                            <strong>
+                              {identity(record)}
+                            </strong>
+
+                            <small>
+                              {names[record.kind]}
+                            </small>
                           </span>
                         </div>
                       </td>
+
                       <td>
-                        {dateLabel(dueDate(r), {
+                        {labelDate(dueDate(record), {
                           day: "2-digit",
                           month: "short",
                         })}
                       </td>
+
                       <td>
-                        <Badge record={r} date={date} />
+                        <StatusBadge
+                          record={record}
+                          date={date}
+                        />
                       </td>
+
                       <td>
                         <button
                           className="icon-btn"
-                          aria-label={`Edit ${identity(r)}`}
-                          onClick={() => setModal(r)}
+                          onClick={() =>
+                            setModal(record)
+                          }
+                          aria-label={`Edit ${identity(record)}`}
                         >
-                          <ArrowUpRight size={16} />
+                          <I icon={arrowUpRight} />
                         </button>
                       </td>
                     </tr>
@@ -1337,51 +1671,77 @@ function Dashboard({ rows, reminders, totalToday, date, navigate, setModal }) {
                 </tbody>
               </table>
             </div>
+          ) : (
+            <Empty
+              title="Semua jadwal aman"
+              text="Belum ada akun yang mendekati jadwal reset atau masa aktif."
+            />
           )}
         </section>
+
         <section className="panel quick-panel">
           <div className="panel-heading">
             <h2>Akses cepat</h2>
-            <Sparkles size={18} className="muted" />
+            <I icon={sparkles} />
           </div>
-          <p>Lebih sedikit klik, lebih banyak beres.</p>
-          {kinds.map((k) => {
-            const Icon = icons[k];
+
+          <p>
+            Lebih sedikit klik, lebih banyak beres.
+          </p>
+
+          {kinds.map((kind) => {
+            const IconComponent = icons[kind];
+
             return (
               <button
-                key={k}
                 className="quick-link"
-                onClick={() => setModal({ kind: k })}
+                key={kind}
+                onClick={() =>
+                  setModal({ kind })
+                }
               >
                 <span className="quick-icon">
-                  <Icon size={28} />
+                  <IconComponent size={28} />
                 </span>
+
                 <span>
-                  <strong>Tambah {names[k]}</strong>
+                  <strong>
+                    Tambah {names[kind]}
+                  </strong>
+
                   <small>
-                    {k === "disney"
-                      ? "Catat profil dan masa aktif"
-                      : "Simpan akun baru"}
+                    {kind === "disney"
+                      ? "Catat profil"
+                      : kind === "canva"
+                        ? "Catat masa aktif Canva"
+                        : "Simpan akun baru"}
                   </small>
                 </span>
-                <Plus size={17} />
+
+                <I icon={plus} />
               </button>
             );
           })}
-          <div className={"quick-notice " + (overdue ? "attention" : "")}>
+
+          <div
+            className={`quick-notice ${
+              overdue ? "attention" : ""
+            }`}
+          >
             <span className="notice-icon">
-              {overdue ? <AlertCircle size={17} /> : <CheckCircle2 size={17} />}
+              <I
+                icon={
+                  overdue
+                    ? alertCircle
+                    : circleCheck
+                }
+              />
             </span>
+
             <p>
-              {overdue ? (
-                <>
-                  <b>{overdue} akun melewati jadwal.</b>
-                  <br />
-                  Yuk, perbarui tanggal resetnya.
-                </>
-              ) : (
-                <>Reminder mengikuti tanggal akun secara otomatis.</>
-              )}
+              {overdue
+                ? `${overdue} akun melewati jadwal. Yuk, perbarui tanggalnya.`
+                : "Reminder mengikuti tanggal akun otomatis."}
             </p>
           </div>
         </section>
@@ -1389,34 +1749,32 @@ function Dashboard({ rows, reminders, totalToday, date, navigate, setModal }) {
     </>
   );
 }
-function Empty({
-  title = "Tidak ada akun ditemukan",
-  text = "Coba ubah pencarian atau tambahkan akun baru.",
-}) {
-  return (
-    <div className="empty-state">
-      <span>
-        <FileSpreadsheet size={28} />
-      </span>
-      <h3>{title}</h3>
-      <p>{text}</p>
-    </div>
-  );
-}
-function Password({ value }) {
+
+// ==========================================
+// PASSWORD DISPLAY
+// ==========================================
+
+function Password({ value = "" }) {
   const [show, setShow] = useState(false);
+
   return (
     <span className="password-cell">
-      <code>{show ? value : "••••••••"}</code>
+      <code>
+        {show ? value : "••••••••"}
+      </code>
+
       <button
         className="icon-btn"
         aria-label={
-          show ? "Sembunyikan password akun" : "Tampilkan password akun"
+          show
+            ? "Sembunyikan password"
+            : "Tampilkan password"
         }
         onClick={() => setShow(!show)}
       >
-        {show ? <EyeOff size={15} /> : <Eye size={15} />}
+        <I icon={show ? eyeOff : eye} size={15} />
       </button>
+
       <button
         className="icon-btn"
         aria-label="Salin password"
@@ -1424,128 +1782,195 @@ function Password({ value }) {
           try {
             await navigator.clipboard.writeText(value);
             toast("Password disalin");
-          } catch (e) {
-            failure(new Error("Clipboard tidak tersedia di browser ini."));
+          } catch {
+            await failure(
+              new Error("Clipboard tidak tersedia."),
+            );
           }
         }}
       >
-        <Copy size={14} />
+        <I icon={copy} size={14} />
       </button>
     </span>
   );
 }
-function AccountTable({ records, view, date, offset, onEdit, onDelete }) {
+
+// ==========================================
+// REGULAR ACCOUNT TABLE
+// ==========================================
+
+function AccountTable({
+  records,
+  view,
+  date,
+  offset,
+  onEdit,
+  onDelete,
+}) {
   if (!records.length) return <Empty />;
-  const disney = view === "disney",
-    rem = view === "reminders",
-    week = view === "week";
+
+  const disney = view === "disney";
+  const rem = view === "reminders";
+  const week = view === "week";
+
   return (
     <div className="table-scroll">
       <table className="account-table">
         <thead>
           <tr>
             <th>{disney ? "NOMOR" : "NO."}</th>
-            <th>{disney ? "PROFIL" : "AKUN / PROFIL"}</th>
+            <th>
+              {disney ? "PROFIL" : "AKUN / PROFIL"}
+            </th>
+
             {disney ? (
               <>
                 <th>DEVICE</th>
                 <th>LOKASI</th>
               </>
-            ) : !rem ? (
-              <th>PASSWORD</th>
-            ) : (
+            ) : rem ? (
               <th>LAYANAN / TIPE SHARING</th>
+            ) : (
+              <th>PASSWORD</th>
             )}
+
             {week || disney ? (
               <th>TERJUAL</th>
             ) : !rem ? (
               <th>TIPE SHARING</th>
             ) : null}
-            <th>{rem ? "JADWAL" : week ? "TANGGAL HABIS" : "TANGGAL RESET"}</th>
+
+            <th>
+              {rem
+                ? "JADWAL"
+                : week
+                  ? "TANGGAL HABIS"
+                  : "TANGGAL RESET"}
+            </th>
+
             {disney && <th>DURASI</th>}
             <th>STATUS</th>
             <th>AKSI</th>
           </tr>
         </thead>
+
         <tbody>
-          {records.map((r, i) => (
-            <tr key={r.id}>
+          {records.map((record, i) => (
+            <tr key={record.id}>
               <td className="row-number">
-                {disney ? r.nomor : String(offset + i + 1).padStart(2, "0")}
+                {disney
+                  ? record.nomor
+                  : String(offset + i + 1).padStart(
+                      2,
+                      "0",
+                    )}
               </td>
+
               <td>
                 <div className="account-cell">
-                  {!disney && <Service kind={r.kind} />}
+                  {!disney && (
+                    <Service kind={record.kind} />
+                  )}
+
                   <span>
-                    <strong>{identity(r)}</strong>
+                    <strong>
+                      {identity(record)}
+                    </strong>
+
                     <small>
-                      {r.deskripsi ||
-                        (disney ? `Disney+ · ${r.nomor}` : names[r.kind])}
+                      {record.deskripsi ||
+                        names[record.kind]}
                     </small>
                   </span>
                 </div>
               </td>
+
               {disney ? (
                 <>
-                  <td>{r.device}</td>
-                  <td>{r.lokasi}</td>
+                  <td>{record.device}</td>
+                  <td>{record.lokasi}</td>
                 </>
-              ) : !rem ? (
-                <td>
-                  <Password value={r.password} />
-                </td>
-              ) : (
+              ) : rem ? (
                 <td>
                   <span className="reminder-type">
-                    <strong>{names[r.kind]}</strong>
+                    <strong>
+                      {names[record.kind]}
+                    </strong>
+
                     <small>
-                      {r.kind === "netflix"
-                        ? r.tipe_sharing || "Tipe sharing belum diatur"
-                        : r.kind === "week"
-                          ? "Paket mingguan"
-                          : "Reset akun"}
+                      {record.kind === "netflix"
+                        ? record.tipe_sharing
+                        : record.kind === "canva"
+                          ? "Masa aktif Canva"
+                          : "Jadwal akun"}
                     </small>
                   </span>
                 </td>
+              ) : (
+                <td>
+                  <Password
+                    value={record.password || ""}
+                  />
+                </td>
               )}
+
               {week || disney ? (
-                <td className="date-cell">{dateLabel(r.tanggal_terjual)}</td>
+                <td className="date-cell">
+                  {labelDate(record.tanggal_terjual)}
+                </td>
               ) : !rem ? (
                 <td>
-                  <span className="sharing-tag">{r.tipe_sharing}</span>
+                  <span className="sharing-tag">
+                    {record.tipe_sharing || "–"}
+                  </span>
                 </td>
               ) : null}
+
               <td className="date-cell">
-                {dateLabel(dueDate(r))}
+                {labelDate(dueDate(record))}
+
                 {rem && (
                   <small className="remaining">
-                    {status(r, date).days < 0
-                      ? `${Math.abs(status(r, date).days)} hari terlewat`
-                      : status(r, date).days === 0
+                    {status(record, date).days < 0
+                      ? `${Math.abs(
+                          status(record, date).days,
+                        )} hari terlewat`
+                      : status(record, date).days === 0
                         ? "Hari ini"
-                        : `${status(r, date).days} hari lagi`}
+                        : `${
+                            status(record, date).days
+                          } hari lagi`}
                   </small>
                 )}
               </td>
-              {disney && <td>{r.durasi} hari</td>}
+
+              {disney && (
+                <td>{record.durasi} hari</td>
+              )}
+
               <td>
-                <Badge record={r} date={date} />
+                <StatusBadge
+                  record={record}
+                  date={date}
+                />
               </td>
+
               <td>
                 <div className="row-actions">
                   <button
                     className="icon-btn"
-                    aria-label={`Edit ${identity(r)}`}
-                    onClick={() => onEdit(r)}
+                    onClick={() => onEdit(record)}
+                    aria-label={`Edit ${identity(record)}`}
                   >
-                    <Pencil size={16} />
+                    <I icon={pencil} />
                   </button>
+
                   <button
                     className="icon-btn delete"
-                    aria-label={`Hapus ${identity(r)}`}
-                    onClick={() => onDelete(r)}
+                    onClick={() => onDelete(record)}
+                    aria-label={`Hapus ${identity(record)}`}
                   >
-                    <Trash2 size={16} />
+                    <I icon={trash2} />
                   </button>
                 </div>
               </td>
@@ -1556,156 +1981,253 @@ function AccountTable({ records, view, date, offset, onEdit, onDelete }) {
     </div>
   );
 }
-function ModalFrame({ children, title, subtitle, onClose, busy }) {
+
+// ==========================================
+// MODAL FRAME
+// ==========================================
+
+function ModalFrame({
+  title,
+  subtitle,
+  busy,
+  onClose,
+  children,
+}) {
   const ref = useRef(null);
+
   useEffect(() => {
-    const prev = document.activeElement;
-    const node = ref.current;
-    const f = () => node.querySelector("input,select,button")?.focus();
-    f();
-    const handler = (e) => {
-      if (document.querySelector(".swal2-container")) return;
-      if (e.key === "Escape" && !busy) onClose();
-      if (e.key === "Tab") {
-        const items = [
-          ...node.querySelectorAll(
-            "button:not(:disabled),input:not(:disabled),select:not(:disabled),textarea:not(:disabled),a[href]",
-          ),
-        ].filter((x) => x.offsetParent !== null);
-        const first = items[0],
-          last = items.at(-1);
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last?.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first?.focus();
-        }
+    const previous = document.activeElement;
+    const prevOverflow = document.body.style.overflow;
+
+    document.body.style.overflow = "hidden";
+
+    ref.current
+      ?.querySelector("input,select,button")
+      ?.focus();
+
+    const keyHandler = (event) => {
+      if (
+        document.querySelector(".swal2-container")
+      ) {
+        return;
+      }
+
+      if (event.key === "Escape" && !busy) {
+        onClose();
+      }
+
+      if (event.key !== "Tab") return;
+
+      const elements = [
+        ...ref.current.querySelectorAll(
+          "button:not(:disabled),input:not(:disabled),select:not(:disabled),textarea:not(:disabled)",
+        ),
+      ].filter(
+        (element) => element.offsetParent !== null,
+      );
+
+      const first = elements[0];
+      const last = elements.at(-1);
+
+      if (
+        event.shiftKey &&
+        document.activeElement === first
+      ) {
+        event.preventDefault();
+        last?.focus();
+      } else if (
+        !event.shiftKey &&
+        document.activeElement === last
+      ) {
+        event.preventDefault();
+        first?.focus();
       }
     };
-    document.addEventListener("keydown", handler);
-    const overflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+
+    document.addEventListener(
+      "keydown",
+      keyHandler,
+    );
+
     return () => {
-      document.removeEventListener("keydown", handler);
-      document.body.style.overflow = overflow;
-      prev?.focus();
+      document.removeEventListener(
+        "keydown",
+        keyHandler,
+      );
+
+      document.body.style.overflow = prevOverflow;
+      previous?.focus?.();
     };
   }, [busy]);
+
   return (
     <div
       className="modal-backdrop"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget && !busy) onClose();
+      onMouseDown={(event) => {
+        if (
+          event.target === event.currentTarget &&
+          !busy
+        ) {
+          onClose();
+        }
       }}
     >
       <section
         ref={ref}
+        className="modal"
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="modal"
         data-lenis-prevent
       >
         <div className="modal-heading">
           <div>
-            <span className="eyebrow">ORINIMO WORKSPACE</span>
+            <span className="eyebrow">
+              ORINIMO WORKSPACE
+            </span>
             <h2>{title}</h2>
             <p>{subtitle}</p>
           </div>
+
           <button
+            type="button"
             className="icon-btn"
-            aria-label="Tutup dialog"
-            disabled={busy}
             onClick={onClose}
+            disabled={busy}
+            aria-label="Tutup dialog"
           >
-            <X size={21} />
+            <I icon={x} size={21} />
           </button>
         </div>
+
         {children}
       </section>
     </div>
   );
 }
-function AccountModal({ record, busy, onClose, onSave }) {
+
+// ==========================================
+// NETFLIX / DISNEY ACCOUNT MODAL
+// ==========================================
+
+function AccountModal({
+  record,
+  busy,
+  onClose,
+  onSave,
+}) {
   const [form, setForm] = useState({
-      email: "",
-      password: "",
-      tipe_sharing: sharingTypes[0],
-      deskripsi: "",
-      nomor: "",
-      profil: "",
-      device: "",
-      lokasi: "",
-      tanggal_terjual: today(),
-      tanggal_reset: addDays(today(), 30),
-      durasi_habis: addDays(today(), 7),
-      durasi: 30,
-      ...record,
-    }),
-    [show, setShow] = useState(false),
-    [auto, setAuto] = useState(!record.id),
-    [formError, setFormError] = useState("");
-  const disney = form.kind === "disney",
-    week = form.kind === "week";
-  function update(k, v) {
-    setForm((p) => {
-      const next = { ...p, [k]: v };
-      if (auto && disney && ["tanggal_terjual", "durasi"].includes(k))
-        next.tanggal_reset = addDays(next.tanggal_terjual, Number(next.durasi));
-      if (auto && week && k === "tanggal_terjual")
-        next.durasi_habis = addDays(v, 7);
+    email: "",
+    password: "",
+    tipe_sharing: sharingTypes[0],
+    deskripsi: "",
+    nomor: "",
+    profil: "",
+    device: "",
+    lokasi: "",
+    tanggal_terjual: today(),
+    tanggal_reset: addDays(today(), 30),
+    durasi_habis: addDays(today(), 7),
+    durasi: 30,
+    ...record,
+  });
+
+  const [show, setShow] = useState(false);
+  const [auto, setAuto] = useState(!record.id);
+  const [formError, setFormError] = useState("");
+
+  const disney = form.kind === "disney";
+  const week = form.kind === "week";
+
+  function update(key, value) {
+    setForm((previous) => {
+      const next = {
+        ...previous,
+        [key]: value,
+      };
+
+      if (
+        auto &&
+        disney &&
+        ["tanggal_terjual", "durasi"].includes(key)
+      ) {
+        next.tanggal_reset = addDays(
+          next.tanggal_terjual,
+          Number(next.durasi),
+        );
+      }
+
+      if (
+        auto &&
+        week &&
+        key === "tanggal_terjual"
+      ) {
+        next.durasi_habis = addDays(value, 7);
+      }
+
       return next;
     });
   }
+
   const field = (
-    k,
-    label,
+    key,
+    title,
     type = "text",
     required = false,
-    placeholder = "",
   ) => (
-    <label key={k}>
-      {label}
-      {required && <span className="required"> *</span>}
+    <label key={key}>
+      {title}
+      {required && (
+        <span className="required"> *</span>
+      )}
+
       <input
-        value={form[k] ?? ""}
-        onChange={(e) => update(k, e.target.value)}
-        onInput={type === "date" ? (e) => update(k, e.target.value) : undefined}
         type={type}
+        value={form[key] ?? ""}
         required={required}
-        placeholder={placeholder}
         min={type === "number" ? 1 : undefined}
         max={type === "number" ? 3650 : undefined}
+        onChange={(event) =>
+          update(key, event.target.value)
+        }
       />
     </label>
   );
-  function submit(e) {
-    e.preventDefault();
+
+  function submit(event) {
+    event.preventDefault();
+
     try {
       const data = cleanRecord(form);
       setFormError("");
       onSave(data, record.id);
-    } catch (e) {
-      setFormError(e.issues?.map((i) => i.message).join(" ") || e.message);
+    } catch (error) {
+      setFormError(
+        error.issues
+          ?.map((issue) => issue.message)
+          .join(" ") || error.message,
+      );
     }
   }
+
   return (
     <ModalFrame
-      title={`${record.id ? "Edit" : "Tambah"} akun ${names[form.kind]}`}
-      subtitle="Lengkapi informasi akun. Reminder akan mengikuti tanggal yang kamu atur."
-      onClose={onClose}
+      title={`${
+        record.id ? "Edit" : "Tambah"
+      } akun ${names[form.kind]}`}
+      subtitle="Lengkapi informasi akun. Reminder menyesuaikan tanggal yang diatur."
       busy={busy}
+      onClose={onClose}
     >
       <form onSubmit={submit}>
         <div className="modal-body">
           <div className="form-grid">
             {disney ? (
               <>
-                {field("nomor", "Nomor", "text", true, "Contoh: D-001")}
-                {field("profil", "Profil", "text", true, "Nama profil")}
-                {field("device", "Device", "text", true, "Contoh: Smart TV")}
-                {field("lokasi", "Lokasi", "text", true, "Contoh: Denpasar")}
+                {field("nomor", "Nomor", "text", true)}
+                {field("profil", "Profil", "text", true)}
+                {field("device", "Device", "text", true)}
+                {field("lokasi", "Lokasi", "text", true)}
               </>
             ) : (
               <>
@@ -1715,105 +2237,164 @@ function AccountModal({ record, busy, onClose, onSave }) {
                     "Email akun",
                     "email",
                     true,
-                    "akun@email.com",
                   )}
                 </div>
+
                 <label className="span-two">
-                  Password akun <span className="required">*</span>
+                  Password akun
+                  <span className="required"> *</span>
+
                   <div className="input-icon password-input">
                     <input
                       type={show ? "text" : "password"}
                       value={form.password}
-                      onChange={(e) => update("password", e.target.value)}
+                      onChange={(event) =>
+                        update(
+                          "password",
+                          event.target.value,
+                        )
+                      }
                       required
                       autoComplete="off"
                     />
+
                     <button
                       type="button"
                       className="icon-btn"
+                      onClick={() =>
+                        setShow(!show)
+                      }
                       aria-label="Lihat password"
-                      onClick={() => setShow(!show)}
                     >
-                      {show ? <EyeOff size={17} /> : <Eye size={17} />}
+                      <I
+                        icon={show ? eyeOff : eye}
+                      />
                     </button>
                   </div>
                 </label>
               </>
             )}
-            {disney || week ? (
+
+            {(disney || week) && (
               <>
-                {field("tanggal_terjual", "Tanggal terjual", "date", disney)}
+                {field(
+                  "tanggal_terjual",
+                  "Tanggal terjual",
+                  "date",
+                  disney,
+                )}
+
                 {disney
-                  ? field("durasi", "Durasi (hari)", "number", true)
-                  : field("durasi_habis", "Tanggal habis", "date")}
+                  ? field(
+                      "durasi",
+                      "Durasi (hari)",
+                      "number",
+                      true,
+                    )
+                  : field(
+                      "durasi_habis",
+                      "Tanggal habis",
+                      "date",
+                    )}
               </>
-            ) : null}
-            {!week && field("tanggal_reset", "Tanggal reset", "date", disney)}
+            )}
+
+            {!week &&
+              field(
+                "tanggal_reset",
+                "Tanggal reset",
+                "date",
+                disney,
+              )}
+
             {!disney && !week && (
               <label>
-                Tipe sharing <span className="required">*</span>
+                Tipe sharing
+                <span className="required"> *</span>
+
                 <select
                   value={form.tipe_sharing}
-                  onChange={(e) => update("tipe_sharing", e.target.value)}
+                  onChange={(event) =>
+                    update(
+                      "tipe_sharing",
+                      event.target.value,
+                    )
+                  }
                 >
-                  {sharingTypes.map((s) => (
-                    <option key={s}>{s}</option>
+                  {sharingTypes.map((type) => (
+                    <option key={type}>
+                      {type}
+                    </option>
                   ))}
                 </select>
               </label>
             )}
+
             {!disney && (
               <label className="span-two">
                 Catatan
                 <textarea
-                  rows="3"
-                  placeholder="Tambahkan catatan jika diperlukan…"
+                  rows={3}
                   value={form.deskripsi || ""}
-                  onChange={(e) => update("deskripsi", e.target.value)}
+                  onChange={(event) =>
+                    update(
+                      "deskripsi",
+                      event.target.value,
+                    )
+                  }
                 />
               </label>
             )}
           </div>
+
           {(disney || week) && (
             <label className="checkbox-label">
               <input
                 type="checkbox"
                 checked={auto}
-                onChange={(e) => {
-                  setAuto(e.target.checked);
-                  if (e.target.checked)
-                    setForm((f) => ({
-                      ...f,
-                      [disney ? "tanggal_reset" : "durasi_habis"]: addDays(
-                        f.tanggal_terjual,
-                        disney ? Number(f.durasi) : 7,
+                onChange={(event) => {
+                  setAuto(event.target.checked);
+
+                  if (event.target.checked) {
+                    setForm((previous) => ({
+                      ...previous,
+                      [disney
+                        ? "tanggal_reset"
+                        : "durasi_habis"]: addDays(
+                        previous.tanggal_terjual,
+                        disney
+                          ? Number(previous.durasi)
+                          : 7,
                       ),
                     }));
+                  }
                 }}
-              />{" "}
-              Hitung otomatis{" "}
+              />
+
               {disney
-                ? "tanggal reset dari durasi"
-                : "tanggal habis: terjual + 7 hari"}
+                ? "Hitung reset dari durasi"
+                : "Hitung habis dari tanggal terjual + 7 hari"}
             </label>
           )}
+
           <div className="form-hint">
-            <Bell size={16} />
+            <I icon={bell} />
             <span>
-              {disney
-                ? "Reminder Disney muncul mulai 3 hari sebelum reset."
-                : week
-                  ? "Reminder mingguan muncul mulai 2 hari sebelum habis."
-                  : "Reminder Netflix muncul mulai 3 hari sebelum reset."}{" "}
-              Tanggal tetap dapat disesuaikan.
+              Reminder {week ? "H−2" : "H−3"}{" "}
+              sebelum jatuh tempo.
             </span>
           </div>
+
           {formError && (
-            <div role="alert" className="form-error">
+            <div
+              className="form-error"
+              role="alert"
+            >
               {formError}
             </div>
           )}
         </div>
+
         <div className="modal-footer">
           <button
             type="button"
@@ -1823,12 +2404,19 @@ function AccountModal({ record, busy, onClose, onSave }) {
           >
             Batal
           </button>
-          <button className="btn primary" disabled={busy}>
-            {busy ? (
-              <LoaderCircle className="spin" size={17} />
-            ) : (
-              <Check size={17} />
-            )}{" "}
+
+          <button
+            type="submit"
+            className="btn primary"
+            disabled={busy}
+          >
+            <I
+              icon={
+                busy
+                  ? loaderCircle
+                  : check
+              }
+            />
             {busy ? "Menyimpan…" : "Simpan akun"}
           </button>
         </div>
@@ -1836,230 +2424,388 @@ function AccountModal({ record, busy, onClose, onSave }) {
     </ModalFrame>
   );
 }
-function ImportModal({ kind, demo, existing, onClose, onDone, onTemplate }) {
-  const [preview, setPreview] = useState(null),
-    [busy, setBusy] = useState(false),
-    [filename, setFilename] = useState(""),
-    [error, setError] = useState("");
-  const input = useRef();
+
+// ==========================================
+// IMPORT EXCEL MODAL
+// ==========================================
+
+function ImportModal({
+  kind,
+  demo,
+  existing,
+  onClose,
+  onDone,
+  onTemplate,
+}) {
+  const [preview, setPreview] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [filename, setFilename] = useState("");
+  const [error, setError] = useState("");
+  const input = useRef(null);
+
   async function read(file) {
     if (!file) return;
+
     setError("");
     setPreview(null);
-    if (!file.name.endsWith(".xlsx")) {
-      setError("Pilih file Excel berformat .xlsx.");
+
+    if (!file.name.toLowerCase().endsWith(".xlsx")) {
+      setError("Pilih file Excel .xlsx");
       return;
     }
+
     if (file.size > 5 * 1024 * 1024) {
       setError("Ukuran file maksimal 5 MB.");
       return;
     }
+
     setBusy(true);
     setFilename(file.name);
+
     try {
-      const { parseWorkbook } = await import("../shared/excel.js");
-      const p = await parseWorkbook(await file.arrayBuffer(), kind);
-      const distinct = uniqueRows(existing, p.rows);
-      setPreview({ ...p, duplicates: distinct.skipped, rows: distinct.rows });
-    } catch (e) {
-      setError(e.message);
+      const { parseWorkbook } = await import(
+        "../shared/excel.js"
+      );
+
+      const parsed = await parseWorkbook(
+        await file.arrayBuffer(),
+        kind,
+      );
+
+      const distinct = uniqueRows(
+        existing,
+        parsed.rows,
+      );
+
+      setPreview({
+        ...parsed,
+        duplicates: distinct.skipped,
+        rows: distinct.rows,
+      });
+    } catch (error) {
+      setError(error.message);
     } finally {
       setBusy(false);
     }
   }
+
   async function apply() {
+    if (
+      !preview?.rows.length ||
+      preview.errors.length
+    ) {
+      return;
+    }
+
     setBusy(true);
+
     try {
       const result = await request(
         "/accounts/import",
-        { method: "POST", body: { rows: preview.rows } },
+        {
+          method: "POST",
+          body: {
+            rows: preview.rows,
+          },
+        },
         demo,
       );
+
       await onDone();
+
       await success(
         "Impor selesai!",
-        `${result.imported} akun berhasil ditambahkan. ${result.skipped + preview.duplicates} duplikat dilewati.`,
+        `${
+          result.imported
+        } akun berhasil ditambahkan. ${
+          result.skipped + preview.duplicates
+        } duplikat dilewati.`,
       );
-    } catch (e) {
-      await failure(e);
+    } catch (error) {
+      await failure(error);
     } finally {
       setBusy(false);
     }
   }
+
   return (
     <ModalFrame
       title={`Impor ${names[kind]}`}
-      subtitle="Gunakan Excel dari website lama atau template di bawah ini."
-      onClose={onClose}
+      subtitle="Impor Excel atau unduh template format Orinimo."
       busy={busy}
+      onClose={onClose}
     >
       <div className="modal-body">
         <div className="import-help">
-          <FileSpreadsheet size={20} />
-          <span>Header kolom mengikuti format ekspor asli.</span>
-          <button className="text-btn" onClick={onTemplate}>
-            Unduh template <Download size={14} />
+          <I icon={fileSpreadsheet} size={20} />
+          <span>
+            Header kolom harus sesuai format template.
+          </span>
+
+          <button
+            type="button"
+            className="text-btn"
+            onClick={onTemplate}
+          >
+            Unduh template
+            <I icon={download} size={14} />
           </button>
         </div>
+
         <input
           ref={input}
           type="file"
           accept=".xlsx"
           hidden
-          onChange={(e) => read(e.target.files[0])}
+          onChange={(event) =>
+            read(event.target.files?.[0])
+          }
         />
+
         <button
-          disabled={busy}
+          type="button"
           className="dropzone"
-          onClick={() => input.current.click()}
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={(e) => {
-            e.preventDefault();
-            if (!busy) read(e.dataTransfer.files[0]);
+          disabled={busy}
+          onClick={() =>
+            input.current?.click()
+          }
+          onDragOver={(event) =>
+            event.preventDefault()
+          }
+          onDrop={(event) => {
+            event.preventDefault();
+
+            if (!busy) {
+              read(event.dataTransfer.files?.[0]);
+            }
           }}
         >
           <span>
-            {busy ? (
-              <LoaderCircle className="spin" size={28} />
-            ) : (
-              <Upload size={28} />
-            )}
+            <I
+              icon={
+                busy
+                  ? loaderCircle
+                  : upload
+              }
+              size={28}
+            />
           </span>
+
           <strong>
             {busy
-              ? "Membaca file…"
-              : filename || "Klik atau tarik file Excel ke sini"}
+              ? "Membaca file..."
+              : filename ||
+                "Pilih atau tarik file Excel ke sini"}
           </strong>
-          <small>.xlsx • Maksimal 5 MB / 2.000 baris</small>
+
+          <small>
+            .xlsx · Maksimal 5MB / 2.000 baris
+          </small>
         </button>
+
         {error && (
-          <div className="form-error" role="alert">
+          <div
+            className="form-error"
+            role="alert"
+          >
             {error}
           </div>
         )}
+
         {preview && (
           <>
             <div className="import-stats">
               <span>
-                <b>{preview.rows.length}</b>siap diimpor
+                <b>{preview.rows.length}</b>
+                siap diimpor
               </span>
+
               <span>
-                <b>{preview.duplicates}</b>duplikat dilewati
+                <b>{preview.duplicates}</b>
+                duplikat dilewati
               </span>
+
               <span>
-                <b>{preview.errors.length}</b>baris bermasalah
+                <b>{preview.errors.length}</b>
+                kesalahan
               </span>
             </div>
+
             {preview.errors.length > 0 ? (
               <div className="form-error">
-                <strong>Perbaiki baris berikut sebelum impor:</strong>
+                <strong>
+                  Perbaiki baris berikut:
+                </strong>
+
                 <ul>
-                  {preview.errors.slice(0, 8).map((e) => (
-                    <li key={e.row}>
-                      Baris {e.row}: {e.message}
-                    </li>
-                  ))}
+                  {preview.errors
+                    .slice(0, 8)
+                    .map((error) => (
+                      <li key={error.row}>
+                        Baris {error.row}:{" "}
+                        {error.message}
+                      </li>
+                    ))}
                 </ul>
-                {preview.errors.length > 8 && (
-                  <span>Dan {preview.errors.length - 8} baris lainnya.</span>
-                )}
               </div>
             ) : (
               <p className="import-ok">
-                <CheckCircle2 size={16} /> Pemeriksaan selesai. Data siap
-                disimpan.
+                <I icon={circleCheck} />
+                Data siap disimpan.
               </p>
             )}
           </>
         )}
+
         {demo && (
           <p className="form-hint">
-            Mode demo: gunakan data contoh. Data hanya berada di memori tab ini.
+            Mode demo: data hanya di memori tab.
           </p>
         )}
       </div>
+
       <div className="modal-footer">
-        <button className="btn secondary" disabled={busy} onClick={onClose}>
+        <button
+          type="button"
+          className="btn secondary"
+          disabled={busy}
+          onClick={onClose}
+        >
           Batal
         </button>
+
         <button
+          type="button"
           className="btn primary"
-          disabled={busy || !preview?.rows.length || !!preview?.errors.length}
+          disabled={
+            busy ||
+            !preview?.rows.length ||
+            !!preview?.errors.length
+          }
           onClick={apply}
         >
-          <Upload size={16} /> Impor {preview?.rows.length || ""} akun
+          <I icon={upload} />
+          Impor {preview?.rows.length || ""} akun
         </button>
       </div>
     </ModalFrame>
   );
 }
-function Settings({ demo, email, theme, onThemeToggle }) {
+
+// ==========================================
+// SETTINGS PAGE
+// ==========================================
+
+function Settings({
+  demo,
+  email,
+  theme,
+  onThemeToggle,
+}) {
+  const groups = [
+    [
+      "Informasi workspace",
+      [
+        ["Workspace", "Orinimo"],
+        [
+          "Akun admin",
+          demo ? "Demo Admin" : email || "–",
+        ],
+        [
+          "Penyimpanan",
+          demo
+            ? "Demo (memori tab)"
+            : "Supabase",
+        ],
+        [
+          "Zona waktu",
+          "Asia/Makassar (WITA)",
+        ],
+      ],
+    ],
+    [
+      "Aturan reminder",
+      [
+        ["Netflix bulanan", "H−3"],
+        ["Netflix mingguan", "H−2"],
+        ["Disney+", "H−3"],
+        [
+          "Canva",
+          "H−3 sebelum tanggal berakhir",
+        ],
+      ],
+    ],
+  ];
+
   return (
     <div className="settings-grid">
-      <section className="panel settings-panel">
-        <h2>Informasi workspace</h2>
-        <p>Pengaturan dasar untuk operasional Orinimo.</p>
-        <dl>
-          <div>
-            <dt>Workspace</dt>
-            <dd>Orinimo</dd>
-          </div>
-          <div>
-            <dt>Akun admin</dt>
-            <dd>{demo ? "Demo Admin" : email}</dd>
-          </div>
-          <div>
-            <dt>Penyimpanan</dt>
-            <dd>{demo ? "Demo · memori tab" : "Supabase"}</dd>
-          </div>
-          <div>
-            <dt>Zona waktu</dt>
-            <dd>Asia/Makassar (WITA)</dd>
-          </div>
-        </dl>
-      </section>
+      {groups.map(([heading, items]) => (
+        <section
+          key={heading}
+          className="panel settings-panel"
+        >
+          <h2>{heading}</h2>
+          <p>
+            Pengaturan operasional Orinimo
+          </p>
+
+          <dl>
+            {items.map(([key, value]) => (
+              <div key={key}>
+                <dt>{key}</dt>
+                <dd>{value}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      ))}
+
       <section className="panel settings-panel theme-settings">
         <h2>Tampilan</h2>
-        <p>Pilih tampilan yang nyaman untuk workspace.</p>
+
+        <p>
+          Pilih tema yang nyaman digunakan.
+        </p>
+
         <div className="theme-setting-row">
           <span>
-            <Iconify
-              icon={theme === "dark" ? moon : sun}
-              width={18}
-              height={18}
+            <I
+              icon={
+                theme === "dark"
+                  ? moon
+                  : sun
+              }
             />
-            <strong>Mode {theme === "dark" ? "gelap" : "terang"}</strong>
+            <strong>
+              Mode{" "}
+              {theme === "dark"
+                ? "gelap"
+                : "terang"}
+            </strong>
           </span>
-          <ThemeToggle theme={theme} onToggle={onThemeToggle} />
+
+          <ThemeToggle
+            theme={theme}
+            onToggle={onThemeToggle}
+          />
         </div>
-      </section>
-      <section className="panel settings-panel">
-        <h2>Aturan reminder</h2>
-        <p>Reminder dihitung otomatis dari tanggal akun.</p>
-        <dl>
-          <div>
-            <dt>Netflix bulanan</dt>
-            <dd>H−3 sebelum reset</dd>
-          </div>
-          <div>
-            <dt>Netflix mingguan</dt>
-            <dd>H−2 sebelum habis</dd>
-          </div>
-          <div>
-            <dt>Disney+</dt>
-            <dd>H−3 sebelum reset</dd>
-          </div>
-          <div>
-            <dt>Jadwal terlewat</dt>
-            <dd>Tetap tampil sampai diperbarui</dd>
-          </div>
-        </dl>
+
         <div className="form-hint">
-          <Bell size={17} /> Reminder tampil di aplikasi. Tidak mengirim
-          WhatsApp atau email.
+          <I icon={bell} />
+          <span>
+            Reminder hanya tampil di aplikasi.
+            Tidak mengirim email atau WhatsApp.
+          </span>
         </div>
       </section>
     </div>
   );
 }
-createRoot(document.getElementById("root")).render(<App />);
+
+// ==========================================
+// RENDER APP
+// ==========================================
+
+createRoot(
+  document.getElementById("root"),
+).render(<App />);

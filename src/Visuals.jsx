@@ -12,8 +12,10 @@ export function AppIcon({ className = "", ...props }) {
   return <img src={appIcon} alt="" className={className} {...props} />;
 }
 
+
 export function Service({ kind, size }) {
   const disney = kind === "disney";
+  const canva = kind === "canva";
 
   return (
     <span
@@ -21,18 +23,35 @@ export function Service({ kind, size }) {
       style={size ? { width: size, height: size } : undefined}
       role="img"
       aria-label={
-        disney ? "Disney+" : kind === "week" ? "Netflix 1 Week" : "Netflix"
+        disney
+          ? "Disney+"
+          : canva
+            ? "Canva"
+            : kind === "week"
+              ? "Netflix 1 Week"
+              : "Netflix"
       }
     >
-      <img
-        src={disney ? "/brands/disney-plus.png" : "/brands/netflix-n.png"}
-        alt=""
-      />
+      {canva ? (
+        <img src="/brands/canva-logo.png" alt="" />
+      ) : (
+        <img
+          src={
+            disney
+              ? "/brands/disney-plus.png"
+              : "/brands/netflix-n.png"
+          }
+          alt=""
+        />
+      )}
 
-      {kind === "week" && <small aria-hidden="true">7</small>}
+      {kind === "week" && (
+        <small aria-hidden="true">7</small>
+      )}
     </span>
   );
 }
+
 
 export const NetflixIcon = ({ size = 28 }) => (
   <Service kind="netflix" size={size} />
@@ -42,6 +61,10 @@ export const WeekIcon = ({ size = 28 }) => <Service kind="week" size={size} />;
 
 export const DisneyIcon = ({ size = 28 }) => (
   <Service kind="disney" size={size} />
+);
+
+export const CanvaIcon = ({ size = 28 }) => (
+  <Service kind="canva" size={size} />
 );
 
 export function WelcomeScreen({ user, onComplete, theme, onThemeToggle }) {

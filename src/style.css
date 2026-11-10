@@ -3302,3 +3302,380 @@ textarea::placeholder {
     font-size: 15px;
   }
 }
+
+
+/* =========================================
+   ORINIMO MASCOT UI
+   ========================================= */
+
+.ori-login-v2,
+.ori-loading-v2,
+.ori-welcome-v2 {
+  font-family: "Poppins", sans-serif;
+}
+
+/* LOGIN INPUT */
+
+.ori-login-v2 .ori-login-field input,
+:root[data-theme="dark"] .ori-login-v2 .ori-login-field input {
+  border: 0;
+  outline: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+.ori-login-v2 .ori-login-field input:focus,
+:root[data-theme="dark"] .ori-login-v2 .ori-login-field input:focus {
+  outline: 0;
+  box-shadow: none;
+}
+
+/* LOGIN BACKGROUND */
+
+.ori-login-mascot-img {
+  animation: ori-login-mascot-float 3.4s ease-in-out infinite;
+}
+
+@keyframes ori-login-mascot-float {
+  0%, 100% {
+    transform: translateY(0) rotate(0);
+  }
+
+  50% {
+    transform: translateY(-18px) rotate(0.8deg);
+  }
+}
+
+.ori-login-story::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  background: radial-gradient(
+    ellipse at 50% 43%,
+    rgba(255, 224, 181, 0.15),
+    transparent 63%
+  );
+}
+
+.ori-story-orbit {
+  position: absolute;
+  width: min(44rem, 90vw);
+  aspect-ratio: 1;
+  top: 9%;
+  left: 5%;
+  border: 1px solid rgba(255, 245, 234, 0.15);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.ori-story-orbit-b {
+  transform: scale(0.73);
+  border-color: rgba(255, 245, 234, 0.12);
+}
+
+/* SPARKLE ANIMATION */
+
+.ori-sparkle {
+  animation: ori-sparkle 2.7s ease-in-out infinite;
+}
+
+.ori-sparkle-late {
+  animation-delay: 1.1s;
+}
+
+/* LOADING BACKGROUND */
+
+.ori-loading-glow {
+  pointer-events: none;
+
+  background: radial-gradient(
+    ellipse at 50% 45%,
+    rgba(246, 194, 163, 0.31),
+    transparent 57%
+  );
+}
+
+/* WELCOME BACKGROUND */
+
+.ori-welcome-glow {
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      ellipse at 10% 10%,
+      rgba(250, 201, 170, 0.32),
+      transparent 37%
+    ),
+    radial-gradient(
+      ellipse at 95% 90%,
+      rgba(191, 73, 65, 0.12),
+      transparent 36%
+    );
+}
+
+:root[data-theme="dark"] .ori-loading-glow,
+:root[data-theme="dark"] .ori-welcome-glow {
+  opacity: 0.35;
+}
+
+/* LOGIN BUTTON */
+
+.ori-login-v2 button:disabled {
+  opacity: 0.5;
+}
+
+.ori-login-v2 .ori-login-submit svg {
+  transition: transform 0.2s ease;
+}
+
+.ori-login-v2 .ori-login-submit:not(:disabled):hover svg {
+  transform: translateX(2px);
+}
+
+.ori-login-v2 .ori-login-form-card {
+  position: relative;
+  z-index: 1;
+}
+
+/* =========================================
+   SWEETALERT WITH MASCOT
+   ========================================= */
+
+.ori-mascot-swal {
+  overflow: hidden !important;
+  border: 1px solid #f0dcd4 !important;
+  border-radius: 28px !important;
+  padding: 19px 26px 27px !important;
+  background: #fffaf6 !important;
+
+  box-shadow:
+    0 30px 80px rgba(57, 21, 23, 0.22) !important;
+}
+
+/* MASCOT IMAGE IN POPUP */
+
+.ori-mascot-swal .ori-swal-mascot-image {
+  object-fit: contain;
+  margin: 0 auto 8px !important;
+
+  filter: drop-shadow(
+    0 9px 11px rgba(89, 31, 21, 0.12)
+  );
+
+  animation: ori-mascot-greet 1.9s ease-in-out infinite;
+}
+
+/* POPUP TYPOGRAPHY */
+
+.ori-mascot-swal .swal2-title {
+  color: #58332e !important;
+  font-size: 22px !important;
+  padding-top: 7px !important;
+}
+
+.ori-mascot-swal .swal2-html-container {
+  color: #846f70 !important;
+  font-size: 12px !important;
+}
+
+/* POPUP STATES */
+
+.ori-mascot-swal.ori-swal-error {
+  border-color: #f0c7c1 !important;
+}
+
+.ori-mascot-swal.ori-swal-warning {
+  border-color: #efd8c1 !important;
+}
+
+.ori-mascot-swal .swal2-actions {
+  gap: 10px;
+}
+
+.ori-mascot-swal .swal2-confirm,
+.ori-mascot-swal .swal2-cancel {
+  min-height: 42px;
+  border-radius: 12px;
+}
+
+/* TOAST */
+
+.ori-mascot-swal.ori-mascot-toast {
+  display: flex !important;
+  align-items: center !important;
+  flex-direction: row !important;
+  gap: 9px;
+
+  max-width: calc(100vw - 28px) !important;
+  min-height: 69px;
+
+  background: #fffdfb !important;
+  padding: 12px 16px !important;
+}
+
+.ori-mascot-toast .ori-swal-mascot-image {
+  margin: 0 !important;
+  flex-shrink: 0;
+}
+
+.ori-mascot-toast .swal2-title {
+  margin: 0 !important;
+  padding: 0 !important;
+  text-align: left;
+  font-size: 12px !important;
+}
+
+.ori-mascot-toast .swal2-timer-progress-bar {
+  background: #ba5a44 !important;
+}
+
+/* DARK MODE */
+
+:root[data-theme="dark"] .ori-mascot-swal {
+  background: #282127 !important;
+  border-color: rgba(255,255,255,0.13) !important;
+}
+
+:root[data-theme="dark"] .ori-mascot-swal .swal2-title {
+  color: #fff3ee !important;
+}
+
+:root[data-theme="dark"] .ori-mascot-swal .swal2-html-container {
+  color: #ccb4b7 !important;
+}
+
+:root[data-theme="dark"] .ori-mascot-swal.ori-mascot-toast {
+  background: #282127 !important;
+}
+
+/* =========================================
+   KEYFRAMES
+   ========================================= */
+
+@keyframes ori-sparkle {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.22);
+  }
+}
+
+@keyframes ori-mascot-greet {
+  0%, 100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+
+  50% {
+    transform: translateY(-4px) rotate(1deg);
+  }
+}
+
+/* =========================================
+   RESPONSIVE
+   ========================================= */
+
+@media (max-width: 1023px) {
+  .ori-login-story .orinimo-mascot {
+    width: min(260px, 75vw) !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .ori-login-form-card {
+    border-radius: 23px;
+  }
+
+  .ori-mascot-swal {
+    width: min(
+      420px,
+      calc(100vw - 26px)
+    ) !important;
+
+    padding: 14px 16px 20px !important;
+  }
+
+  .ori-mascot-swal .ori-swal-mascot-image {
+    width: 100px !important;
+    height: 100px !important;
+  }
+
+  .ori-mascot-toast .ori-swal-mascot-image {
+    width: 42px !important;
+    height: 42px !important;
+  }
+}
+
+/* ACCESSIBILITY */
+
+@media (prefers-reduced-motion: reduce) {
+  .ori-sparkle,
+  .ori-login-mascot-img,
+  .ori-mascot-swal .ori-swal-mascot-image {
+    animation: none !important;
+  }
+
+  .orinimo-mascot {
+    transition: none !important;
+  }
+}
+
+
+/* =====================================
+   CANVA SERVICE
+   ===================================== */
+
+.service.canva {
+  background: linear-gradient(
+    135deg,
+    #00c4cc,
+    #7d2ae8
+  );
+  color: #ffffff;
+  border: 0;
+}
+
+.service.canva img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* DESIGNER STATUS */
+
+.designer-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.designer-tag.yes {
+  background: #eee6ff;
+  color: #6d35bc;
+}
+
+.designer-tag.no {
+  background: #f0f1f4;
+  color: #737987;
+}
+
+:root[data-theme="dark"] .designer-tag.yes {
+  background: #392b53;
+  color: #dbc7ff;
+}
+
+:root[data-theme="dark"] .designer-tag.no {
+  background: #31343c;
+  color: #d1d5df;
+}

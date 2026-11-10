@@ -1,39 +1,36 @@
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
+
+import { mascotSweetAlertOptions } from "./components/MascotPopup.jsx";
+
 const base = {
   confirmButtonColor: "#7b1e1e",
   cancelButtonColor: "#697284",
   buttonsStyling: false,
-  customClass: {
-    popup: "ori-popup",
-    confirmButton: "btn primary",
-    cancelButton: "btn secondary",
-    actions: "popup-actions",
-  },
   showClass: { popup: "popup-in" },
   hideClass: { popup: "popup-out" },
-  heightAuto: false,
 };
+const modalBase = { ...base, heightAuto: false };
 export const success = (title, text) =>
   Swal.fire({
-    ...base,
-    icon: "success",
+    ...modalBase,
+    ...mascotSweetAlertOptions("success"),
     title,
     text,
     confirmButtonText: "Oke, mengerti",
   });
 export const failure = (e) =>
   Swal.fire({
-    ...base,
-    icon: "error",
+    ...modalBase,
+    ...mascotSweetAlertOptions("error"),
     title: "Belum berhasil",
     text: e.message || String(e),
     confirmButtonText: "Coba lagi",
   });
 export const confirm = (title, text, button = "Ya, lanjutkan") =>
   Swal.fire({
-    ...base,
-    icon: "warning",
+    ...modalBase,
+    ...mascotSweetAlertOptions("warning"),
     title,
     text,
     showCancelButton: true,
@@ -44,9 +41,9 @@ export const confirm = (title, text, button = "Ya, lanjutkan") =>
 export const toast = (title) =>
   Swal.fire({
     ...base,
+    ...mascotSweetAlertOptions("success", true),
     toast: true,
     position: "top-end",
-    icon: "success",
     title,
     showConfirmButton: false,
     timer: 2200,
